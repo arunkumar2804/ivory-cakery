@@ -1,39 +1,31 @@
 /**
  * ══════════════════════════════════════════════════════════════
- * IVORY CAKERY — Google Apps Script Backend
- * ══════════════════════════════════════════════════════════════
- * 
- * This script handles:
- *   1. Receiving form submissions from the website
- *   2. Saving data to Google Sheets (with timestamp)
- *   3. Sending Telegram notifications to the owner
- *   4. Sending Email notifications (built-in, always works)
- *   5. Duplicate prevention
+ * IVORY CAKERY — CRM & Automation Backend
  * ══════════════════════════════════════════════════════════════
  */
 
 // ── CONFIGURATION ──────────────────────────────────────────────
 
-// Telegram Bot Config
-const TELEGRAM_BOT_TOKEN = 'YOUR_TELEGRAM_BOT_TOKEN_HERE';
-const TELEGRAM_CHAT_ID   = 'YOUR_TELEGRAM_CHAT_ID_HERE';
+// Owner Config
+const OWNER_EMAIL = 'arunkumail29@gmail.com'; 
+const TELEGRAM_BOT_TOKEN = '8624014283:AAEq_4dFpWV0wETpd9YplQ2j4VsCQzH7jvc';
+const TELEGRAM_CHAT_ID   = '1004497804';
 
-// Email Notification (sends from your Google account automatically)
-const EMAIL_TO = 'YOUR_EMAIL_HERE'; // e.g. 'hello@ivorycakery.com'
-
-// Google Sheet tab name
+// Google Sheet Settings
 const SHEET_NAME = 'Enquiries';
-
-// Duplicate check window in minutes
-const DUPLICATE_WINDOW_MINUTES = 2;
+const STATUS_COLUMN_INDEX = 8; // Column H (1-indexed)
 
 // ───────────────────────────────────────────────────────────────
 
 
-/** Handles POST requests from the website form. */
+/**
+ * 1. RECEIVE ENQUIRY
+ * Triggered when a customer submits the form on the website.
+ */
 function doPost(e) {
   try {
     const name      = e.parameter.name      || '';
+    const email     = e.parameter.email     || '';
     const phone     = e.parameter.phone     || '';
     const occasion  = e.parameter.occasion  || '';
     const cakeType  = e.parameter.cakeType  || '';
@@ -42,130 +34,130 @@ function doPost(e) {
     
     const timestamp = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
     
-    if (isDuplicate(phone, cakeType)) {
-      return createResponse(200, 'duplicate', 'Duplicate submission detected.');
-    }
+    // Save with a default "New" status
+    saveToSheet(timestamp, name, email, phone, occasion, cakeType, eventDate, message, "New");
     
-    saveToSheet(timestamp, name, phone, occasion, cakeType, eventDate, message);
-    sendTelegramNotification(name, phone, occasion, cakeType, eventDate, message);
-    sendEmailNotification(name, phone, occasion, cakeType, eventDate, message);
+    // Notify Owner (You)
+    sendOwnerNotification(name, email, phone, occasion, cakeType, eventDate, message);
     
-    return createResponse(200, 'success', 'Enquiry submitted successfully!');
+    // Send Thank You to Customer
+    sendCustomerThankYou(email, name, cakeType);
+    
+    return createResponse(200, 'success', 'Enquiry received!');
     
   } catch (error) {
     Logger.log('Error in doPost: ' + error.toString());
-    return createResponse(500, 'error', 'Server error: ' + error.toString());
+    return createResponse(500, 'error', error.toString());
   }
 }
 
 
-/** Handles GET requests (for testing). */
-function doGet() {
-  return createResponse(200, 'ok', 'Ivory Cakery API is running! 🎂');
+/**
+ * 2. ORDER STATUS AUTOMATION
+ * Triggered whenever you manually change the "Status" column in Google Sheets.
+ * NOTE: This must be set up as an "Installable Trigger" in Apps Script.
+ */
+function handleStatusChange(e) {
+  const range = e.range;
+  const sheet = range.getSheet();
+  
+  // Only trigger if we are on the correct sheet and column
+  if (sheet.getName() !== SHEET_NAME || range.getColumn() !== STATUS_COLUMN_INDEX) return;
+  
+  const status = range.getValue();
+  const row = range.getRow();
+  
+  // Get customer info from the same row
+  const data = sheet.getRange(row, 1, 1, 7).getValues()[0];
+  const customerName  = data[1];
+  const customerEmail = data[2];
+  const cakeType      = data[5];
+
+  if (!customerEmail) return;
+
+  if (status === "Preparing") {
+    sendUpdateEmail(customerEmail, customerName, "is now being prepared", "Our chefs are currently crafting your " + cakeType + ". Stay tuned!");
+  } 
+  else if (status === "Ready to Collect") {
+    sendUpdateEmail(customerEmail, customerName, "is ready for collection!", "Great news! Your " + cakeType + " is ready. You can visit us to pick it up.");
+  }
 }
 
 
-/** Saves form data to Google Sheet. */
-function saveToSheet(timestamp, name, phone, occasion, cakeType, eventDate, message) {
-  const ss    = SpreadsheetApp.getActiveSpreadsheet();
-  let   sheet = ss.getSheetByName(SHEET_NAME);
+/** Saves data to Google Sheet with Status column */
+function saveToSheet(timestamp, name, email, phone, occasion, cakeType, eventDate, message, status) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(SHEET_NAME);
   
   if (!sheet) {
     sheet = ss.insertSheet(SHEET_NAME);
-    sheet.appendRow(['Timestamp', 'Name', 'Phone Number', 'Occasion', 'Cake Type', 'Date of Event', 'Additional Details']);
-    sheet.getRange(1, 1, 1, 7).setFontWeight('bold');
+    sheet.appendRow(['Timestamp', 'Name', 'Email', 'Phone', 'Occasion', 'Cake Type', 'Date', 'Status', 'Notes']);
+    sheet.getRange(1, 1, 1, 9).setFontWeight('bold').setBackground('#fdfaf5');
     sheet.setFrozenRows(1);
   }
   
-  sheet.appendRow([timestamp, name, phone, occasion, cakeType, formatEventDate(eventDate), message]);
+  sheet.appendRow([timestamp, name, email, phone, occasion, cakeType, formatEventDate(eventDate), status, message]);
 }
 
 
-/** Checks for duplicate submissions. */
-function isDuplicate(phone, cakeType) {
-  const ss    = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName(SHEET_NAME);
+/** Sends "Thank You" email to the Customer */
+function sendCustomerThankYou(customerEmail, name, cakeType) {
+  const subject = "🎂 We've received your enquiry! - Ivory Cakery";
+  let html = `<div style="font-family:sans-serif; max-width:500px; padding:20px; border:1px solid #eba551; border-radius:10px;">`;
+  html += `<h2 style="color:#583b1d;">Hi ${name},</h2>`;
+  html += `<p>Thank you for reaching out to <strong>Ivory Cakery</strong>!</p>`;
+  html += `<p>We've received your enquiry for a <strong>${cakeType}</strong>. Our team will review the details and get back to you shortly to confirm your order.</p>`;
+  html += `<p style="margin-top:20px;">Sweetly,<br>The Ivory Cakery Team</p></div>`;
   
-  if (!sheet || sheet.getLastRow() < 2) return false;
-  
-  const data   = sheet.getDataRange().getValues();
-  const now    = new Date();
-  const window = DUPLICATE_WINDOW_MINUTES * 60 * 1000;
-  
-  for (let i = data.length - 1; i >= 1; i--) {
-    const rowTimestamp = new Date(data[i][0]);
-    if (now - rowTimestamp > window) break;
-    if (String(data[i][2]) === phone && String(data[i][4]) === cakeType) return true;
-  }
-  
-  return false;
+  try {
+    GmailApp.sendEmail(customerEmail, subject, "", { htmlBody: html, name: "Ivory Cakery" });
+  } catch (e) { Logger.log("Thank you email failed: " + e); }
 }
 
 
-/** Sends Telegram notification. */
-function sendTelegramNotification(name, phone, occasion, cakeType, eventDate, message) {
-  let formattedDate = formatEventDate(eventDate);
+/** Sends Status Update email to the Customer */
+function sendUpdateEmail(customerEmail, name, statusAction, customMessage) {
+  const subject = `🎂 Your Ivory Cakery order ${statusAction}`;
+  let html = `<div style="font-family:sans-serif; max-width:500px; padding:20px; border:1px solid #eba551; border-radius:10px;">`;
+  html += `<h2 style="color:#583b1d;">Hi ${name},</h2>`;
+  html += `<p>Your order ${statusAction}.</p>`;
+  html += `<p>${customMessage}</p>`;
+  html += `<p style="margin-top:20px;">See you soon!<br>Ivory Cakery</p></div>`;
   
-  let msg = `🎂 *New Cake Enquiry!*\n\n`;
-  msg += `*${name}* wants to order a *${cakeType}* to be delivered on *${formattedDate}* for their *${occasion}*.`;
-  if (message && message.trim() !== '') {
-    msg += `\n\nAdditional notes: "_${message}_"`;
-  }
-  msg += `\n\n📱 Phone: ${phone}`;
+  try {
+    GmailApp.sendEmail(customerEmail, subject, "", { htmlBody: html, name: "Ivory Cakery" });
+  } catch (e) { Logger.log("Status update email failed: " + e); }
+}
+
+
+/** Notifies you (the Owner) */
+function sendOwnerNotification(name, email, phone, occasion, cakeType, eventDate, message) {
+  const subject = `🎂 New Enquiry: ${name} (${cakeType})`;
+  let html = `<div style="font-family:sans-serif; padding:20px; background:#fdfaf5;">`;
+  html += `<h3>New Order Enquiry</h3>`;
+  html += `<ul><li><strong>Customer:</strong> ${name}</li><li><strong>Email:</strong> ${email}</li><li><strong>Phone:</strong> ${phone}</li><li><strong>Type:</strong> ${cakeType}</li></ul>`;
+  html += `<p>Check your Google Sheet to update the status!</p></div>`;
   
+  // Email to you
+  try { GmailApp.sendEmail(OWNER_EMAIL, subject, "", { htmlBody: html }); } catch(e){}
+  
+  // Telegram to you
+  let tgMsg = `🎂 *New Enquiry!*\n\n*${name}* (${email})\nwants a *${cakeType}* for *${occasion}* on *${formatEventDate(eventDate)}*.`;
   try {
     UrlFetchApp.fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
       method: 'post',
       contentType: 'application/json',
-      payload: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: msg, parse_mode: 'Markdown' }),
-      muteHttpExceptions: true
+      payload: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: tgMsg, parse_mode: 'Markdown' })
     });
-  } catch (error) {
-    Logger.log('Telegram failed: ' + error.toString());
-  }
+  } catch(e){}
 }
 
 
-/** Sends a beautifully formatted Email notification. */
-function sendEmailNotification(name, phone, occasion, cakeType, eventDate, message) {
-  let formattedDate = formatEventDate(eventDate);
-  
-  let html = '<div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:20px;">';
-  html += '<h2 style="color:#eba551;border-bottom:2px solid #f1c87f;padding-bottom:10px;">🎂 New Cake Enquiry!</h2>';
-  html += '<table style="width:100%;border-collapse:collapse;margin-top:15px;">';
-  html += '<tr><td style="padding:8px 12px;font-weight:bold;color:#583b1d;">Name</td><td style="padding:8px 12px;">' + name + '</td></tr>';
-  html += '<tr style="background:#fdfaf5;"><td style="padding:8px 12px;font-weight:bold;color:#583b1d;">Phone</td><td style="padding:8px 12px;">' + phone + '</td></tr>';
-  html += '<tr><td style="padding:8px 12px;font-weight:bold;color:#583b1d;">Occasion</td><td style="padding:8px 12px;">' + occasion + '</td></tr>';
-  html += '<tr style="background:#fdfaf5;"><td style="padding:8px 12px;font-weight:bold;color:#583b1d;">Cake Type</td><td style="padding:8px 12px;color:#eba551;font-weight:bold;">' + cakeType + '</td></tr>';
-  html += '<tr><td style="padding:8px 12px;font-weight:bold;color:#583b1d;">Event Date</td><td style="padding:8px 12px;">' + formattedDate + '</td></tr>';
-  if (message && message.trim() !== '') {
-    html += '<tr style="background:#fdfaf5;"><td style="padding:8px 12px;font-weight:bold;color:#583b1d;">Notes</td><td style="padding:8px 12px;font-style:italic;">' + message + '</td></tr>';
-  }
-  html += '</table>';
-  html += '<p style="margin-top:20px;color:#8a7560;font-size:13px;">— Ivory Cakery Website</p></div>';
-  
-  try {
-    MailApp.sendEmail({ to: EMAIL_TO, subject: '🎂 New Cake Enquiry from ' + name, htmlBody: html });
-  } catch (error) {
-    Logger.log('Email failed: ' + error.toString());
-  }
-}
-
-
-/** Formats event date to dd/MM/yyyy. */
 function formatEventDate(eventDate) {
   if (!eventDate) return 'TBD';
-  try {
-    return Utilities.formatDate(new Date(eventDate), 'Asia/Kolkata', 'dd/MM/yyyy');
-  } catch (e) {
-    return eventDate;
-  }
+  try { return Utilities.formatDate(new Date(eventDate), 'Asia/Kolkata', 'dd/MM/yyyy'); } catch (e) { return eventDate; }
 }
 
-
-/** Creates a JSON response. */
 function createResponse(statusCode, status, message) {
-  return ContentService
-    .createTextOutput(JSON.stringify({ statusCode, status, message }))
-    .setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(JSON.stringify({ statusCode, status, message })).setMimeType(ContentService.MimeType.JSON);
 }

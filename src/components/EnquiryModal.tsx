@@ -27,6 +27,7 @@ const CAKE_TYPES = [
 // Form data interface
 interface FormData {
   name: string;
+  email: string;
   phone: string;
   occasion: string;
   cakeType: string;
@@ -38,6 +39,7 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ onClose }) => {
   // Form state management
   const [formData, setFormData] = useState<FormData>({
     name: '',
+    email: '',
     phone: '',
     occasion: '',
     cakeType: '',
@@ -119,6 +121,7 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ onClose }) => {
       // Add all form fields as hidden inputs
       const fields: Record<string, string> = {
         name: formData.name.trim(),
+        email: formData.email.trim(),
         phone: formData.phone.trim(),
         occasion: formData.occasion.trim(),
         cakeType: formData.cakeType,
