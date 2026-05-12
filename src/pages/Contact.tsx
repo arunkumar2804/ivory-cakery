@@ -41,7 +41,7 @@ const Contact: React.FC<ContactProps> = ({ onEnquiryClick }) => {
                   </div>
                   <div className="contact-details">
                     <h3>Phone Hotline</h3>
-                    <p>+91 XXXXX XXXXX</p>
+                    <p>+91 81237 84747</p>
                   </div>
                 </div>
 
@@ -51,7 +51,7 @@ const Contact: React.FC<ContactProps> = ({ onEnquiryClick }) => {
                   </div>
                   <div className="contact-details">
                     <h3>Email Desk</h3>
-                    <p>hello@ivorycakery.com</p>
+                    <p>ivorycakery@gmail.com</p>
                   </div>
                 </div>
 

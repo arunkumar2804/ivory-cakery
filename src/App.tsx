@@ -25,7 +25,7 @@ function App() {
   const toggleEnquiry = () => setIsEnquiryOpen(!isEnquiryOpen);
 
   // WhatsApp pre-typed ordering message
-  const whatsappNumber = "918667248598"; // User test number
+  const whatsappNumber = "918123784747"; // Official business number
   const whatsappMessage = encodeURIComponent("Hello Ivory Cakery! I would like to order a bespoke custom cake. Please guide me through the custom tier options.");
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
 

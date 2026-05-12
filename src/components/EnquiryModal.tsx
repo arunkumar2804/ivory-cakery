@@ -250,7 +250,7 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ onClose }) => {
                     type="tel"
                     id="enquiry-phone"
                     name="phone"
-                    placeholder="e.g. 8667248598"
+                    placeholder="e.g. 8123784747"
                     value={formData.phone}
                     onChange={handleChange}
                     autoComplete="tel"
