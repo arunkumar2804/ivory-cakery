@@ -235,7 +235,11 @@ function sendOwnerNotification(name, email, phone, occasion, cakeType, eventDate
   </div>`;
   try { GmailApp.sendEmail(OWNER_EMAIL, subject, "", { htmlBody: html, name: "Ivory Cakery Notifications" }); } catch(e){}
   
-  let tgMsg = `New Enquiry\nID: ${orderId}\n${name} wants a ${cakeType} for ${occasion} on ${formatEventDate(eventDate)}.`;
+  let tgMsg = `🎂 New Cake Enquiry!\n\n` +
+               `${name} wants to order a ${cakeType} to be delivered on ${formatEventDate(eventDate)} for their ${occasion || 'Celebration'}.\n\n` +
+               `Additional notes: "${message || 'None'}"\n\n` +
+               `📱 Phone: ${phone}`;
+               
   try { UrlFetchApp.fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
     method: 'post', contentType: 'application/json', payload: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: tgMsg })
   }); } catch(e){}
