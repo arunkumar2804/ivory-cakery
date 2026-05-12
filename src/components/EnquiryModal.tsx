@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { X, Send, CheckCircle, Loader2, Cake, Calendar, User, Phone, MessageSquare, PartyPopper } from 'lucide-react';
+import { X, Send, CheckCircle, Loader2, Cake, Calendar, User, Mail, Phone, MessageSquare, PartyPopper } from 'lucide-react';
 import './EnquiryModal.css';
 
 interface EnquiryModalProps {
@@ -218,6 +218,24 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ onClose }) => {
                     value={formData.name}
                     onChange={handleChange}
                     autoComplete="name"
+                    required
+                  />
+                </div>
+
+                {/* Email */}
+                <div className="form-group">
+                  <label htmlFor="enquiry-email">
+                    <Mail size={16} />
+                    <span>Email Address <span className="required">*</span></span>
+                  </label>
+                  <input
+                    type="email"
+                    id="enquiry-email"
+                    name="email"
+                    placeholder="e.g. arun@example.com"
+                    value={formData.email}
+                    onChange={handleChange}
+                    autoComplete="email"
                     required
                   />
                 </div>
