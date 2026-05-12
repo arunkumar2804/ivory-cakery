@@ -1,0 +1,536 @@
+/* Custom Dynamic Palette Blocks */
+.bg-cream { background-color: #fdfaf5; }
+.bg-coral-light { background-color: var(--color-primary-light); }
+.bg-peach-light { background-color: var(--color-secondary-light); }
+
+.text-center { text-align: center; }
+.mb-3 { margin-bottom: 1rem; }
+.mb-4 { margin-bottom: 1.5rem; }
+.mb-5 { margin-bottom: 3.5rem; }
+.mt-1 { margin-top: 0.25rem; }
+.mt-3 { margin-top: 1rem; }
+.mt-4 { margin-top: 1.5rem; }
+.pt-0 { padding-top: 0 !important; }
+.max-w-lg { max-width: 32rem; }
+.max-w-4xl { max-width: 56rem; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+
+/* Abstract Graphic Accents (Memphis Dots/Stripes) */
+.floating-geo {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.geo-circle-empty {
+  width: 25px;
+  height: 25px;
+  border: 4px solid var(--color-primary);
+  border-radius: 50%;
+  top: 15%;
+  left: 48%;
+}
+
+.geo-square-rot {
+  width: 20px;
+  height: 20px;
+  border: 4px solid var(--color-text);
+  transform: rotate(25deg);
+  top: 8%;
+  left: 55%;
+}
+
+.geo-square-small {
+  width: 14px;
+  height: 14px;
+  border: 3px solid var(--color-primary);
+  transform: rotate(15deg);
+  top: 10%;
+  left: 10%;
+}
+
+.geo-circle-solid {
+  width: 30px;
+  height: 30px;
+  background-color: var(--color-secondary);
+  border-radius: 50%;
+  bottom: 20%;
+  left: 35%;
+}
+
+.geo-square-rot-small {
+  width: 16px;
+  height: 16px;
+  border: 3px solid var(--color-primary);
+  transform: rotate(-15deg);
+  top: 10%;
+  left: -5%;
+}
+
+.geo-circle-solid-small {
+  width: 45px;
+  height: 45px;
+  background-color: var(--color-secondary);
+  border-radius: 50%;
+  bottom: 5%;
+  right: -5%;
+}
+
+/* Dots patterns using radial gradients */
+.dots-accent-left,
+.dots-accent-right {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  background-image: radial-gradient(var(--color-text) 2px, transparent 2px);
+  background-size: 15px 15px;
+  z-index: -1;
+}
+
+.dots-accent-left {
+  bottom: -20px;
+  left: -20px;
+}
+
+.dots-accent-right {
+  top: 50px;
+  right: -30px;
+}
+
+.stripes-accent {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--color-accent),
+    var(--color-accent) 2px,
+    transparent 2px,
+    transparent 8px
+  );
+  bottom: 10%;
+  right: 5%;
+  z-index: -1;
+  border-radius: 50%;
+}
+
+/* 1. Hero Section Layout */
+.hero-vibrant {
+  position: relative;
+  padding: 9rem 0 5rem;
+  overflow: hidden;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.hero-visual {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.blob-backdrop {
+  position: absolute;
+  width: 110%;
+  height: 110%;
+  background-color: var(--color-secondary);
+  z-index: -1;
+  transform-origin: center;
+}
+
+/* Massive Hero Showcase Image */
+.hero-massive-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 550px; /* Made incredibly prominent */
+  z-index: 1;
+  filter: drop-shadow(0 25px 40px rgba(0,0,0,0.18));
+}
+
+.hero-massive-cake {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: var(--radius-lg);
+  display: block;
+}
+
+.floating-sticker {
+  position: absolute;
+  bottom: 10%;
+  left: -5%;
+  background-color: var(--color-surface);
+  padding: 0.6rem 1.25rem;
+  border-radius: var(--radius-full);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  z-index: 5;
+}
+
+@media (max-width: 992px) {
+  .hero-grid { grid-template-columns: 1fr; text-align: center; gap: 4rem; }
+  .hero-buttons { justify-content: center; }
+  .floating-sticker { left: 10%; bottom: 0; }
+  .geo-circle-empty, .geo-square-rot { display: none; }
+}
+
+/* 2. Story Section Layout */
+.story-vibrant {
+  position: relative;
+  overflow: hidden;
+}
+
+.story-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5rem;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.story-visual {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.blob-backdrop-secondary {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-secondary);
+  z-index: -1;
+  transform: scale(1.05);
+}
+
+.story-massive-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 480px; /* Increased prominence */
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 20px 45px rgba(0,0,0,0.15);
+  z-index: 1;
+}
+
+.story-massive-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.mini-badge-square {
+  position: absolute;
+  bottom: -15px;
+  right: 15px;
+  width: 40px;
+  height: 40px;
+  background-color: var(--color-primary);
+  border-radius: 8px;
+  z-index: 2;
+  transform: rotate(10deg);
+}
+
+@media (max-width: 992px) {
+  .story-grid { grid-template-columns: 1fr; gap: 4rem; }
+  .story-visual { order: -1; }
+}
+
+/* 3. Massive Main Character Variant Showcase Cards */
+.creations-showcase-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.showcase-card {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: var(--transition-smooth);
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-card);
+  background-color: var(--color-surface);
+  border: 1px solid rgba(0,0,0,0.04);
+}
+
+.showcase-card:hover {
+  transform: translateY(-10px);
+  box-shadow: var(--shadow-hover);
+}
+
+.showcase-img-box {
+  position: relative;
+  width: 100%;
+  height: 350px; /* Massive focused area for images */
+  overflow: hidden;
+  background-color: var(--color-secondary-light);
+}
+
+.showcase-main-character {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.showcase-card:hover .showcase-main-character {
+  transform: scale(1.08);
+}
+
+.overlay-tint {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(to top, rgba(0,0,0,0.05), transparent);
+  pointer-events: none;
+}
+
+.showcase-info {
+  padding: 1.8rem 1.5rem;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  background-color: var(--color-surface);
+}
+
+.showcase-info h3 {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--color-text);
+  margin-bottom: 0.25rem;
+}
+
+.showcase-info p {
+  font-size: 0.95rem;
+  color: #7A7A85;
+  margin-bottom: 1.25rem;
+  flex-grow: 1;
+}
+
+.card-click-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: var(--transition-fast);
+}
+
+.showcase-card:hover .card-click-trigger {
+  gap: 0.8rem;
+}
+
+/* 4. Philosophy Section */
+.philosophy-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 5rem;
+  align-items: center;
+}
+
+.reasons-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.reason-item {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+
+.reason-icon-pill {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background-color: var(--color-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 6px 15px rgba(241, 200, 127, 0.4);
+}
+
+.reason-item:nth-child(2) .reason-icon-pill {
+  background-color: var(--color-primary);
+  box-shadow: 0 6px 15px rgba(235, 165, 81, 0.4);
+}
+
+.reason-text h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 0.25rem;
+}
+
+.reason-text p {
+  font-size: 0.95rem;
+  color: #6C6C75;
+  line-height: 1.6;
+}
+
+.philosophy-visual {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.blob-backdrop-accent {
+  position: absolute;
+  width: 105%;
+  height: 105%;
+  background-color: var(--color-secondary-light);
+  z-index: -1;
+}
+
+.phil-massive-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 480px; /* Scaled up as a major highlight */
+  z-index: 1;
+  filter: drop-shadow(0 25px 45px rgba(0,0,0,0.15));
+}
+
+.phil-massive-cake {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-lg);
+  display: block;
+}
+
+@media (max-width: 992px) {
+  .philosophy-grid { grid-template-columns: 1fr; gap: 4rem; }
+}
+
+/* 5. How works vibrant flow */
+.steps-vibrant-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+}
+
+.step-card-box {
+  background-color: var(--color-surface);
+  padding: 2.5rem 1.5rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  text-align: center;
+  position: relative;
+  border: 1px solid rgba(0,0,0,0.03);
+}
+
+.step-bubble {
+  width: 40px;
+  height: 40px;
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.step-card-box h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.step-card-box p {
+  font-size: 0.9rem;
+  color: #7A7A85;
+}
+
+@media (max-width: 992px) {
+  .steps-vibrant-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 576px) {
+  .steps-vibrant-grid { grid-template-columns: 1fr; }
+}
+
+/* 6. Testimonials */
+.testi-vibrant-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2.5rem;
+}
+
+.testi-card {
+  background-color: var(--color-primary-light);
+  padding: 2.5rem;
+  border-radius: var(--radius-md);
+  position: relative;
+}
+
+.testi-card .quote {
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--color-text);
+  margin-bottom: 1.25rem;
+}
+
+.testi-card .author {
+  font-weight: 700;
+  color: var(--color-primary);
+  font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+  .testi-vibrant-grid { grid-template-columns: 1fr; }
+}
+
+/* CTA */
+.cta-box-wrapper {
+  background-color: var(--color-primary);
+  padding: 5rem 2rem;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 40px rgba(186, 129, 62, 0.2);
+}
+
+.text-white { color: #FFFFFF !important; }
+
+.btn-outline-white {
+  background-color: #FFFFFF;
+  color: var(--color-primary);
+  font-weight: 700;
+  padding: 1rem 2.5rem;
+  border-radius: var(--radius-full);
+  border: none;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.btn-outline-white:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+}

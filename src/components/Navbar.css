@@ -1,0 +1,126 @@
+.navbar-vibrant {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  padding: 1.5rem 0;
+  transition: var(--transition-fast);
+  background-color: transparent;
+}
+
+.navbar-vibrant.scrolled {
+  padding: 1rem 0;
+  background-color: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.nav-vibrant-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: var(--color-text);
+  transition: var(--transition-fast);
+}
+
+.brand-logo-img {
+  height: 55px; /* Perfect size for the navbar */
+  width: auto;
+  object-fit: contain;
+}
+
+.brand-text {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  display: inline-block;
+}
+
+.nav-vibrant-links {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+}
+
+.nav-vibrant-links a {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #6C6C75;
+  text-decoration: none;
+  transition: var(--transition-fast);
+  position: relative;
+}
+
+.nav-vibrant-links a:hover,
+.nav-vibrant-links a.active {
+  color: var(--color-text);
+}
+
+.nav-vibrant-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  width: 0;
+  height: 3px;
+  background-color: var(--color-primary);
+  transition: var(--transition-fast);
+  transform: translateX(-50%);
+  border-radius: 2px;
+}
+
+.nav-vibrant-links a:hover::after,
+.nav-vibrant-links a.active::after {
+  width: 100%;
+}
+
+.mobile-toggle-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.nav-vibrant-cta {
+  padding: 0.65rem 1.6rem;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 12px rgba(240, 90, 91, 0.25);
+}
+
+@media (max-width: 992px) {
+  .nav-vibrant-links {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: var(--color-surface);
+    flex-direction: column;
+    padding: 2.5rem 2rem;
+    gap: 1.5rem;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    transform: translateY(-10px);
+    opacity: 0;
+    pointer-events: none;
+    transition: var(--transition-fast);
+  }
+
+  .nav-vibrant-links.open {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .mobile-toggle-btn {
+    display: block;
+  }
+}

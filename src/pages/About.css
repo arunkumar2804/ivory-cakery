@@ -1,0 +1,65 @@
+.about-vibrant-page {
+  position: relative;
+}
+
+.story-editorial-box {
+  background-color: var(--color-primary-light);
+  padding: 4.5rem 4rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.story-split-text {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  margin-top: 2rem;
+}
+
+.story-split-text p {
+  color: #555560;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.reasons-vibrant-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2.5rem;
+  max-width: 1050px;
+  margin: 0 auto;
+}
+
+.reason-card-box {
+  padding: 3rem 2rem;
+  border-radius: var(--radius-md);
+  text-align: center;
+  box-shadow: var(--shadow-card);
+  transition: var(--transition-fast);
+}
+
+.reason-card-box:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-hover);
+}
+
+.reason-card-box h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
+}
+
+.reason-card-box p {
+  font-size: 0.95rem;
+  color: #6C6C75;
+  line-height: 1.5;
+}
+
+@media (max-width: 992px) {
+  .story-editorial-box { padding: 3rem 2rem; }
+  .story-split-text { grid-template-columns: 1fr; gap: 1.5rem; }
+  .reasons-vibrant-grid { grid-template-columns: 1fr; gap: 2rem; }
+}

@@ -1,0 +1,74 @@
+.how-works-vibrant-page {
+  position: relative;
+}
+
+.steps-vibrant-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.step-row-box {
+  background-color: var(--color-primary-light);
+  padding: 3rem 3.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 2.5rem;
+  box-shadow: var(--shadow-card);
+  transition: var(--transition-fast);
+  border: 1px solid var(--color-primary-light);
+}
+
+.step-row-box:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+}
+
+.step-row-box:nth-child(even) {
+  background-color: var(--color-secondary-light);
+  border-color: var(--color-secondary-light);
+}
+
+.step-badge-num {
+  width: 55px;
+  height: 55px;
+  background-color: var(--color-primary);
+  color: #FFFFFF;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  box-shadow: 0 6px 15px rgba(235, 165, 81, 0.3);
+}
+
+.step-row-box:nth-child(even) .step-badge-num {
+  background-color: var(--color-secondary);
+  color: var(--color-text);
+  box-shadow: 0 6px 15px rgba(241, 200, 127, 0.4);
+}
+
+.step-desc h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 0.35rem;
+}
+
+.step-desc p {
+  color: #6C6C75;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .step-row-box {
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    align-items: center;
+  }
+}
