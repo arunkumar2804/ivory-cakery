@@ -70,12 +70,13 @@ function initializeCRM() {
   if (!invSheet) {
     invSheet = ss.insertSheet(INVOICE_MANAGER_SHEET);
     // Header Section
-    invSheet.getRange('A1:E1').setValues([['Customer Name', 'Order ID', 'Discount (%)', 'Subtotal', 'Grand Total']])
+    invSheet.getRange('A1:F1').setValues([['Customer Name', 'Order ID', 'Discount (%)', 'Subtotal', 'Grand Total', 'Total Items']])
             .setFontWeight('bold').setBackground(COLORS.accent).setFontColor('#ffffff');
     
     // Summary Data row (A2 is for name selection, B2 filled by script)
     invSheet.getRange('D2').setFormula('=SUM(D6:D30)');
     invSheet.getRange('E2').setFormula('=D2 * (1 - C2/100)');
+    invSheet.getRange('F2').setFormula('=COUNTA(A6:A30)');
     invSheet.getRange('C2').setValue(0); // Default 0% discount
     
     // Items Table Header
@@ -867,6 +868,7 @@ function generateInvoicePdf(orderId) {
     </table>
     <div class="totals">
       <table>
+        <tr><td>Total Items</td><td style="text-align: right;">${items.length}</td></tr>
         <tr><td>Subtotal</td><td style="text-align: right;">₹${subtotal.toFixed(2)}</td></tr>
         <tr><td>Discount (${custData.discount}%)</td><td style="text-align: right;">-₹${discountAmount.toFixed(2)}</td></tr>
         <tr class="grand-total"><td>Grand Total</td><td style="text-align: right;">₹${grandTotal.toFixed(2)}</td></tr>
