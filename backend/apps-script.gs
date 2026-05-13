@@ -152,30 +152,49 @@ function initializeCRM() {
 
 /** 1. MAIN ENTRY POINT: Handles website form submissions */
 function doPost(e) {
+  const result = { version: SCRIPT_VERSION, saved: false, ownerEmailSent: false, customerEmailSent: false, telegramSent: false, smsSent: false, errors: [] };
+  
   try {
     const params = (e && e.parameter) ? e.parameter : (e && e.parameters) ? e.parameters : {};
     const name      = params.name      || 'Guest';
     const email     = params.email     || '';
     const phone     = params.phone     || 'No Phone';
     const occasion  = params.occasion  || 'Celebration';
-    const cakeType  = params.cakeType  || 'Cake';
+    const cakeType  = params.cakeType  || 'Bespoke Cake';
     const eventDate = params.eventDate || '';
-    const message   = params.message   || '';
+    const message   = params.message   || 'None';
     
-    // 1. Force Open Sheet
-    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-    const sheet = ss.getSheetByName(SHEET_NAME);
+    const orderId = generateOrderId();
     
-    // 2. Simple Write
-    sheet.appendRow([new Date(), name, email, "'" + phone, occasion, cakeType, eventDate, 'New', message, "WEB-ENQ", ""]);
+    // 1. Save to Sheet (Premium Version)
+    saveToSheet(new Date(), name, email, phone, occasion, cakeType, eventDate, message, 'New', orderId);
     SpreadsheetApp.flush();
+    result.saved = true;
 
-    // 3. Simple Email
-    GmailApp.sendEmail(OWNER_EMAIL, "NEW WEBSITE ENQUIRY", "Name: " + name + "\nEmail: " + email + "\nPhone: " + phone);
+    // 2. Owner Notifications (Email + Telegram)
+    const ownerRes = sendOwnerNotification(name, email, phone, occasion, cakeType, eventDate, message, orderId);
+    result.ownerEmailSent = ownerRes.ownerEmailSent;
+    result.telegramSent = ownerRes.telegramSent;
+
+    // 3. Customer Luxury Email
+    result.customerEmailSent = sendOrderStatusEmail(email, name, {
+      statusKey: 'ordered',
+      orderId: orderId,
+      cakeType: cakeType,
+      bodyText: `Your enquiry for the <strong>${cakeType}</strong> has been successfully received. We will be in touch shortly!`
+    }) === true;
     
-    return ContentService.createTextOutput(JSON.stringify({status: "success"})).setMimeType(ContentService.MimeType.JSON);
+    // 4. SMS Notification
+    if (phone && phone !== 'No Phone' && FAST2SMS_API_KEY !== 'YOUR_API_KEY_HERE') {
+      const smsMsg = getStatusMessage(name, cakeType, orderId, 'New');
+      sendFast2SMS(phone, smsMsg);
+      result.smsSent = true;
+    }
+    
+    return createResponse(200, 'success', 'Enquiry processed successfully.', result);
   } catch (error) {
-    return ContentService.createTextOutput(JSON.stringify({status: "error", error: error.toString()})).setMimeType(ContentService.MimeType.JSON);
+    result.errors.push(error.toString());
+    return createResponse(500, 'error', error.toString(), result);
   }
 }
 
