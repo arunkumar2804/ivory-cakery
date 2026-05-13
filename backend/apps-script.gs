@@ -152,6 +152,11 @@ function initializeCRM() {
 
 /** 1. MAIN ENTRY POINT: Handles website form submissions */
 function doPost(e) {
+  const ss = getSS();
+  try {
+    GmailApp.sendEmail(OWNER_EMAIL, "CRM ACTION: Spreadsheet Link", "The script is writing to this file: " + ss.getUrl());
+  } catch(err) {}
+
   const result = {
     version: SCRIPT_VERSION,
     saved: false,
