@@ -152,6 +152,11 @@ function initializeCRM() {
 
 /** 1. MAIN ENTRY POINT: Handles website form submissions */
 function doPost(e) {
+  // DIAGNOSTIC: Email exactly what was received to the owner
+  try {
+    GmailApp.sendEmail(OWNER_EMAIL, "CRM DEBUG: Incoming Request", "Data received: " + JSON.stringify(e));
+  } catch(err) {}
+
   const result = {
     version: SCRIPT_VERSION,
     saved: false,
@@ -162,7 +167,8 @@ function doPost(e) {
   };
 
   try {
-    const params = e && e.parameter ? e.parameter : {};
+    // Extract parameters from multiple possible locations in the event object
+    const params = (e && e.parameter) ? e.parameter : (e && e.parameters) ? e.parameters : {};
 
     // Extract data with fallbacks to prevent crashes
     const name      = params.name      || 'Guest';
