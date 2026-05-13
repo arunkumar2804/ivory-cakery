@@ -162,14 +162,12 @@ function doPost(e) {
     const eventDate = params.eventDate || '';
     const message   = params.message   || 'None';
     
-    const timestamp = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
-    
     const ss = getSS();
     Logger.log('Target Spreadsheet ID: ' + ss.getId());
     
     let sheet = ss.getSheetByName(SHEET_NAME);
     if (!sheet) {
-      Logger.log('Sheet "' + SHEET_NAME + '" not found. Creating it now.');
+      Logger.log('Sheet "' + SHEET_NAME + '" not found. Attempting to create.');
       sheet = ss.insertSheet(SHEET_NAME);
     }
 
@@ -177,10 +175,16 @@ function doPost(e) {
     
     // 3a. Save to Sheet
     saveToSheet(new Date(), name, email, phone, occasion, cakeType, eventDate, message, 'New', orderId);
+    SpreadsheetApp.flush(); // Force write to sheet
     result.sheetUpdated = true;
-    Logger.log('Saved to row: ' + sheet.getLastRow());
+    Logger.log('Successfully saved to row: ' + sheet.getLastRow());
 
-    // 3b. Send Email to Customer
+    // 3b. Send Owner Notification (Crucial Backup)
+    const ownerResult = sendOwnerNotification(name, email, phone, occasion, cakeType, eventDate, message, orderId);
+    result.ownerEmailSent = ownerResult.ownerEmailSent;
+    result.telegramSent = ownerResult.telegramSent;
+
+    // 3c. Send Email to Customer
     result.customerEmailSent = sendOrderStatusEmail(email, name, {
       statusKey: 'ordered',
       orderId: orderId,
@@ -188,7 +192,7 @@ function doPost(e) {
       bodyText: `Your enquiry for the <strong>${cakeType}</strong> has been successfully received. We are currently reviewing your request and will be in touch shortly to finalize the details.`
     }) === true;
     
-    // 3c. Send SMS to Customer
+    // 3d. Send SMS to Customer
     if (phone && FAST2SMS_API_KEY !== 'YOUR_API_KEY_HERE') {
       const smsMsg = getStatusMessage(name, cakeType, orderId, 'New');
       sendFast2SMS(phone, smsMsg);
