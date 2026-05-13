@@ -68,7 +68,14 @@ function initializeCRM() {
     const lastRow = enqSheet.getLastRow();
     if (lastRow > 1) {
       for (let r = 2; r <= lastRow; r++) {
-        const waFormula = `=HYPERLINK("https://wa.me/" & SUBSTITUTE(D${r}, "+", "") & "?text=" & ENCODEURL("Hi " & B${r} & "! This is Ivory Cakery with an update on your " & F${r} & " order (" & J${r} & "). The current status is: " & SUBSTITUTE(H${r}, "New", "Order Received") & ". We are working hard to make it perfect for your celebration. Have a wonderful day!"), "Send WhatsApp Update")`;
+        const waFormula = `=HYPERLINK("https://wa.me/" & SUBSTITUTE(D${r}, "+", "") & "?text=" & ENCODEURL(IFS(
+          H${r}="New", "Hi " & B${r} & "! This is *Ivory Cakery*. We have *successfully received* your order for a *" & F${r} & "* (" & J${r} & "). Our team will start crafting it soon!",
+          H${r}="Preparing", "Hi " & B${r} & "! Great news! Your *" & F${r} & "* (" & J${r} & ") is now in the *Preparing* stage. We are using the finest ingredients to bring your vision to life!",
+          H${r}="Ready to Pickup", "Hi " & B${r} & "! Your delicious *" & F${r} & "* (" & J${r} & ") is now *Ready to Pickup*! We can't wait for you to see it!",
+          H${r}="Completed", "Hi " & B${r} & "! Your order (" & J${r} & ") is now *Completed*. Thank you for choosing *Ivory Cakery*! We hope you love it!",
+          H${r}="Cancelled", "Hi " & B${r} & "! This is Ivory Cakery. We are sorry to inform you that your order (" & J${r} & ") has been *Cancelled*. Please contact us for help.",
+          TRUE, "Hi " & B${r} & "! Just an update on your order (" & J${r} & "). Current status: *" & H${r} & "*"
+        )), "Send WhatsApp Update")`;
         enqSheet.getRange(r, 11).setFormula(waFormula);
       }
     }
@@ -622,8 +629,14 @@ function saveToSheet(timestamp, name, email, phone, occasion, cakeType, eventDat
   sheet.getRange(lastRow, 8).setDataValidation(rule);
   
   // Add WhatsApp Formula (Dynamic Link)
-  // Column D (4) is Phone, Column B (2) is Name, Column F (6) is Cake Type, Column H (8) is Status
-  const waFormula = `=HYPERLINK("https://wa.me/" & SUBSTITUTE(D${lastRow}, "+", "") & "?text=" & ENCODEURL("Hi " & B${lastRow} & "! This is Ivory Cakery with an update on your " & F${lastRow} & " order (" & J${lastRow} & "). The current status is: " & SUBSTITUTE(H${lastRow}, "New", "Order Received") & ". We are working hard to make it perfect for your celebration. Have a wonderful day!"), "Send WhatsApp Update")`;
+  const waFormula = `=HYPERLINK("https://wa.me/" & SUBSTITUTE(D${lastRow}, "+", "") & "?text=" & ENCODEURL(IFS(
+    H${lastRow}="New", "Hi " & B${lastRow} & "! This is *Ivory Cakery*. We have *successfully received* your order for a *" & F${lastRow} & "* (" & J${lastRow} & "). Our team will start crafting it soon!",
+    H${lastRow}="Preparing", "Hi " & B${lastRow} & "! Great news! Your *" & F${lastRow} & "* (" & J${lastRow} & ") is now in the *Preparing* stage. We are using the finest ingredients to bring your vision to life!",
+    H${lastRow}="Ready to Pickup", "Hi " & B${lastRow} & "! Your delicious *" & F${lastRow} & "* (" & J${lastRow} & ") is now *Ready to Pickup*! We can't wait for you to see it!",
+    H${lastRow}="Completed", "Hi " & B${lastRow} & "! Your order (" & J${lastRow} & ") is now *Completed*. Thank you for choosing *Ivory Cakery*! We hope you love it!",
+    H${lastRow}="Cancelled", "Hi " & B${lastRow} & "! This is Ivory Cakery. We are sorry to inform you that your order (" & J${lastRow} & ") has been *Cancelled*. Please contact us for help.",
+    TRUE, "Hi " & B${lastRow} & "! Just an update on your order (" & J${lastRow} & "). Current status: *" & H${lastRow} & "*"
+  )), "Send WhatsApp Update")`;
   sheet.getRange(lastRow, 11).setFormula(waFormula);
 }
 
