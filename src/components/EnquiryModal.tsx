@@ -8,7 +8,7 @@ interface EnquiryModalProps {
 
 // ── CONFIGURATION ──────────────────────────────────────────────
 // Replace this URL with your deployed Google Apps Script Web App URL
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzkKS0fxwPqnaZmDxU7e2Y78SI6Vp6DbmwHnLGQ4h_wRsAQa3O7rnWrvhm_uLM_rhPomg/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzBsE6_Ra4NTQqJ9hK8rHeKMGGr9wVB-ZyWnjKHRurvRCkXsXbcE_LMWyWINg_BWeq1Fg/exec';
 // ───────────────────────────────────────────────────────────────
 
 // Cake type dropdown options
