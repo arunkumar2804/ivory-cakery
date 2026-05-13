@@ -59,9 +59,18 @@ function initializeCRM() {
   // 1. Ensure Enquiries sheet has Discount & Total columns
   let enqSheet = ss.getSheetByName(SHEET_NAME);
   if (enqSheet) {
-    const headers = enqSheet.getRange(1, 1, 1, 13).getValues()[0];
-    if (headers.length < 11 || headers[10] !== 'Discount (%)') {
-      enqSheet.getRange(1, 11).setValue('Discount (%)').setFontWeight('bold').setBackground(COLORS.bg);
+    const headers = enqSheet.getRange(1, 1, 1, 11).getValues()[0];
+    if (headers[10] !== 'WhatsApp') {
+      enqSheet.getRange(1, 11).setValue('WhatsApp').setFontWeight('bold').setBackground(COLORS.bg);
+    }
+    
+    // Backfill WhatsApp formulas for existing rows
+    const lastRow = enqSheet.getLastRow();
+    if (lastRow > 1) {
+      for (let r = 2; r <= lastRow; r++) {
+        const waFormula = `=HYPERLINK("https://wa.me/" & SUBSTITUTE(D${r}, "+", "") & "?text=" & ENCODEURL("Hi " & B${r} & "! 🎂 Just a quick update from Ivory Cakery. Your order " & J${r} & " is currently: " & H${r} & ". Have a sweet day!"), "📱 Send WA")`;
+        enqSheet.getRange(r, 11).setFormula(waFormula);
+      }
     }
   }
 
@@ -70,13 +79,20 @@ function initializeCRM() {
   if (!invSheet) {
     invSheet = ss.insertSheet(INVOICE_MANAGER_SHEET);
     // Header Section
-    invSheet.getRange('A1:F1').setValues([['Customer Name', 'Order ID', 'Discount (%)', 'Subtotal', 'Grand Total', 'Total Items']])
+    invSheet.getRange('A1:G1').setValues([['Customer Name', 'Order ID', 'Discount (%)', 'Subtotal', 'Grand Total', 'Total Items', 'WhatsApp Link']])
             .setFontWeight('bold').setBackground(COLORS.accent).setFontColor('#ffffff');
     
-    // Summary Data row (A2 is for name selection, B2 filled by script)
+    // Summary Data row
     invSheet.getRange('D2').setFormula('=SUM(D6:D30)');
     invSheet.getRange('E2').setFormula('=D2 * (1 - C2/100)');
     invSheet.getRange('F2').setFormula('=COUNTA(A6:A30)');
+    
+    // WhatsApp Formula for Invoice Manager (A2 is Name, B2 is Order ID, E2 is Grand Total)
+    // We look up the phone from Enquiries Col D based on Order ID in B2
+    const phoneLookup = `VLOOKUP(B2, {${SHEET_NAME}!J:J, ${SHEET_NAME}!D:D}, 2, 0)`;
+    const waInvMsg = `"Hi " & A2 & "! 🎂 Your invoice for order " & B2 & " is ready for ₹" & E2 & ". Please let us know if you have any questions!"`;
+    invSheet.getRange('G2').setFormula(`=HYPERLINK("https://wa.me/" & SUBSTITUTE(${phoneLookup}, "+", "") & "?text=" & ENCODEURL(${waInvMsg}), "🟢 Send via WA")`);
+    
     invSheet.getRange('C2').setValue(0); // Default 0% discount
     
     // Items Table Header
@@ -578,7 +594,7 @@ function generateOrderId() {
 }
 
 function ensureSheetSchema(sheet) {
-  const headers = ['Timestamp', 'Name', 'Email', 'Phone', 'Occasion', 'Cake Type', 'Date', 'Status', 'Notes', 'Order ID'];
+  const headers = ['Timestamp', 'Name', 'Email', 'Phone', 'Occasion', 'Cake Type', 'Date', 'Status', 'Notes', 'Order ID', 'WhatsApp'];
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(headers);
     sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground(COLORS.bg);
@@ -591,13 +607,21 @@ function saveToSheet(timestamp, name, email, phone, occasion, cakeType, eventDat
   let sheet = ss.getSheetByName(SHEET_NAME);
   if (!sheet) sheet = ss.insertSheet(SHEET_NAME);
   ensureSheetSchema(sheet);
-  sheet.appendRow([timestamp, name, email, phone, occasion, cakeType, formatEventDate(eventDate), status, message, orderId]);
+  
+  sheet.appendRow([timestamp, name, email, phone, occasion, cakeType, formatEventDate(eventDate), status, message, orderId, ""]);
   
   const lastRow = sheet.getLastRow();
+  
+  // Set Status Dropdown
   const rule = SpreadsheetApp.newDataValidation()
     .requireValueInList(['New', 'Preparing', 'Ready to Pickup', 'Completed', 'Cancelled'], true)
     .build();
   sheet.getRange(lastRow, 8).setDataValidation(rule);
+  
+  // Add WhatsApp Formula (Dynamic Link)
+  // Column D (4) is Phone, Column B (2) is Name, Column H (8) is Status
+  const waFormula = `=HYPERLINK("https://wa.me/" & SUBSTITUTE(D${lastRow}, "+", "") & "?text=" & ENCODEURL("Hi " & B${lastRow} & "! 🎂 Just a quick update from Ivory Cakery. Your order " & J${lastRow} & " is currently: " & H${lastRow} & ". Have a sweet day!"), "📱 Send WA")`;
+  sheet.getRange(lastRow, 11).setFormula(waFormula);
 }
 
 function formatEventDate(eventDate) {
