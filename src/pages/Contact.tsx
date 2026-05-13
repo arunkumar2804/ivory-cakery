@@ -61,7 +61,7 @@ const Contact: React.FC<ContactProps> = ({ onEnquiryClick }) => {
                   </div>
                   <div className="contact-details">
                     <h3>Atelier Location</h3>
-                    <p>Based in [City Name]<br/>Delivery available across selected premium zones</p>
+                    <p>SSK Residency 2nd cross, FCI Main Rd, Patalamma Layout,<br/>Vinayaka Layout, Kadugodi, Bengaluru 560067</p>
                   </div>
                 </div>
 
@@ -71,7 +71,7 @@ const Contact: React.FC<ContactProps> = ({ onEnquiryClick }) => {
                   </div>
                   <div className="contact-details">
                     <h3>Social Feed</h3>
-                    <a href="https://instagram.com" target="_blank" rel="noreferrer" className="vibrant-link">@ivorycakery</a>
+                    <a href="https://www.instagram.com/ivory_cakery" target="_blank" rel="noreferrer" className="vibrant-link">@ivory_cakery</a>
                   </div>
                 </div>
 

@@ -12,10 +12,10 @@ const Footer: React.FC = () => {
           <img src="/images/ivory_logo.png" alt="Ivory Cakery Logo" className="footer-logo-img" />
           <p className="footer-tagline">Crafted to be as beautiful as it is memorable.</p>
           <div className="social-links">
-            <a href="https://instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram">
+            <a href="https://www.instagram.com/ivory_cakery" target="_blank" rel="noreferrer" aria-label="Instagram">
               <FaInstagram size={20} />
             </a>
-            <a href="https://facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook">
+            <a href="https://www.facebook.com/share/18rBG3NEVS" target="_blank" rel="noreferrer" aria-label="Facebook">
               <FaFacebook size={20} />
             </a>
           </div>
@@ -36,15 +36,15 @@ const Footer: React.FC = () => {
           <ul>
             <li>
               <Phone size={18} />
-              <span>+91 XXXXX XXXXX</span>
+              <span>+91 81237 84747</span>
             </li>
             <li>
               <Mail size={18} />
-              <span>hello@ivorycakery.com</span>
+              <span>ivorycakery@gmail.com</span>
             </li>
             <li>
               <MapPin size={18} />
-              <span>Based in City Name<br/>Delivery across selected areas</span>
+              <span>SSK Residency 2nd cross, FCI Main Rd,<br/>Kadugodi, Bengaluru 560067</span>
             </li>
           </ul>
         </div>
