@@ -152,40 +152,40 @@ function initializeCRM() {
 
 /** 1. MAIN ENTRY POINT: Handles website form submissions */
 function doPost(e) {
-  const result = { version: SCRIPT_VERSION, saved: false, ownerEmailSent: false, customerEmailSent: false, errors: [] };
   try {
     const params = (e && e.parameter) ? e.parameter : (e && e.parameters) ? e.parameters : {};
     const name      = params.name      || 'Guest';
     const email     = params.email     || '';
     const phone     = params.phone     || 'No Phone';
     const occasion  = params.occasion  || 'Celebration';
-    const cakeType  = params.cakeType  || 'Bespoke Cake';
+    const cakeType  = params.cakeType  || 'Cake';
     const eventDate = params.eventDate || '';
-    const message   = params.message   || 'None';
+    const message   = params.message   || '';
     
-    // 1. Save to Sheet
+    // 1. Force Open Sheet
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = ss.getSheetByName(SHEET_NAME);
-    const orderId = generateOrderId();
     
-    sheet.appendRow([new Date(), name, email, " " + phone, occasion, cakeType, eventDate, 'New', message, orderId, ""]);
+    // 2. Simple Write
+    sheet.appendRow([new Date(), name, email, "'" + phone, occasion, cakeType, eventDate, 'New', message, "WEB-ENQ", ""]);
     SpreadsheetApp.flush();
-    result.saved = true;
 
-    // 2. Notifications
-    sendOwnerNotification(name, email, phone, occasion, cakeType, eventDate, message, orderId);
-    sendOrderStatusEmail(email, name, {
-      statusKey: 'ordered',
-      orderId: orderId,
-      cakeType: cakeType,
-      bodyText: `Your enquiry for the <strong>${cakeType}</strong> has been successfully received.`
-    });
+    // 3. Simple Email
+    GmailApp.sendEmail(OWNER_EMAIL, "NEW WEBSITE ENQUIRY", "Name: " + name + "\nEmail: " + email + "\nPhone: " + phone);
     
-    return createResponse(200, 'success', 'Enquiry processed.', result);
+    return ContentService.createTextOutput(JSON.stringify({status: "success"})).setMimeType(ContentService.MimeType.JSON);
   } catch (error) {
-    result.errors.push(error.toString());
-    return createResponse(500, 'error', error.toString(), result);
+    return ContentService.createTextOutput(JSON.stringify({status: "error", error: error.toString()})).setMimeType(ContentService.MimeType.JSON);
   }
+}
+
+/** RUN THIS FUNCTION MANUALLY TO FORCE AUTHORIZATION */
+function FORCE_AUTHORIZE_SYSTEM() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  Logger.log("Accessing Sheet: " + ss.getName());
+  GmailApp.sendEmail(OWNER_EMAIL, "Authorization Check", "If you see this, permissions are active.");
+  UrlFetchApp.fetch("https://www.google.com");
+  Logger.log("System Authorized Successfully.");
 }
 
 /** Health check: Open the Web App /exec URL to confirm the deployed version. */
