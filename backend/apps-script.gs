@@ -247,7 +247,7 @@ function handleInvoiceManagerEdit(e) {
   
   if (orderId) {
     // 1. Clear previous items to avoid confusion (Rows 6 to 30)
-    invSheet.getRange('A6:C30').clearContent();
+    invSheet.getRange('A6:D30').clearContent();
     
     // 2. Auto-fill fields
     invSheet.getRange('B2').setValue(orderId);
@@ -255,8 +255,14 @@ function handleInvoiceManagerEdit(e) {
     invSheet.getRange('B6').setValue(1); // Default Qty
     invSheet.getRange('C2').setValue(discount);
     
-    // Optional: If you have a standard price for types, you could set it in C6
-    // invSheet.getRange('C6').setValue(standardPrice);
+    // 3. Restore formulas to ensure subtotal and line totals work
+    invSheet.getRange('D2').setFormula('=SUM(D6:D30)');
+    invSheet.getRange('E2').setFormula('=D2 * (1 - C2/100)');
+    invSheet.getRange('F2').setFormula('=COUNTA(A6:A30)');
+    
+    for (let i = 6; i <= 30; i++) {
+      invSheet.getRange('D' + i).setFormula(`=IF(AND(B${i}>0, C${i}>0), B${i}*C${i}, "")`);
+    }
   }
 }
 
