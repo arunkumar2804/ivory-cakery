@@ -152,22 +152,8 @@ function initializeCRM() {
 
 /** 1. MAIN ENTRY POINT: Handles website form submissions */
 function doPost(e) {
-  const ss = getSS();
+  const result = { version: SCRIPT_VERSION, saved: false, ownerEmailSent: false, customerEmailSent: false, errors: [] };
   try {
-    GmailApp.sendEmail(OWNER_EMAIL, "CRM ACTION: Spreadsheet Link", "The script is writing to this file: " + ss.getUrl());
-  } catch(err) {}
-
-  const result = {
-    version: SCRIPT_VERSION,
-    saved: false,
-    ownerEmailSent: false,
-    telegramSent: false,
-    customerEmailSent: false,
-    errors: []
-  };
-
-  try {
-    // Extract data from the parameter object
     const params = (e && e.parameter) ? e.parameter : (e && e.parameters) ? e.parameters : {};
     const name      = params.name      || 'Guest';
     const email     = params.email     || '';
@@ -177,45 +163,27 @@ function doPost(e) {
     const eventDate = params.eventDate || '';
     const message   = params.message   || 'None';
     
-    const ss = getSS();
-    let sheet = ss.getSheetByName(SHEET_NAME);
-    if (!sheet) {
-      sheet = ss.insertSheet(SHEET_NAME);
-      const headers = ['Timestamp', 'Customer Name', 'Email', 'Phone', 'Occasion', 'Cake Type', 'Event Date', 'Status', 'Message', 'Order ID', 'Notes'];
-      sheet.appendRow(headers);
-    }
-
+    // 1. Save to Sheet
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const sheet = ss.getSheetByName(SHEET_NAME);
     const orderId = generateOrderId();
     
-    // 3a. Save to Sheet
-    saveToSheet(new Date(), name, email, phone, occasion, cakeType, eventDate, message, 'New', orderId);
-    SpreadsheetApp.flush(); // FORCE WRITE
+    sheet.appendRow([new Date(), name, email, " " + phone, occasion, cakeType, eventDate, 'New', message, orderId, ""]);
+    SpreadsheetApp.flush();
     result.saved = true;
 
-    // 3b. Send Notifications
-    const ownerResult = sendOwnerNotification(name, email, phone, occasion, cakeType, eventDate, message, orderId);
-    result.ownerEmailSent = ownerResult.ownerEmailSent;
-    result.telegramSent = ownerResult.telegramSent;
-
-    // 3c. Send Email to Customer
-    result.customerEmailSent = sendOrderStatusEmail(email, name, {
+    // 2. Notifications
+    sendOwnerNotification(name, email, phone, occasion, cakeType, eventDate, message, orderId);
+    sendOrderStatusEmail(email, name, {
       statusKey: 'ordered',
       orderId: orderId,
       cakeType: cakeType,
-      bodyText: `Your enquiry for the <strong>${cakeType}</strong> has been successfully received. We will be in touch shortly to finalize the details.`
-    }) === true;
+      bodyText: `Your enquiry for the <strong>${cakeType}</strong> has been successfully received.`
+    });
     
-    // 3d. Send SMS to Customer
-    if (phone && FAST2SMS_API_KEY !== 'YOUR_API_KEY_HERE') {
-      const smsMsg = getStatusMessage(name, cakeType, orderId, 'New');
-      sendFast2SMS(phone, smsMsg);
-    }
-    
-    Logger.log('doPost result: ' + JSON.stringify(result));
     return createResponse(200, 'success', 'Enquiry processed.', result);
   } catch (error) {
-    result.errors.push('doPost failed: ' + error.toString());
-    Logger.log('doPost result: ' + JSON.stringify(result));
+    result.errors.push(error.toString());
     return createResponse(500, 'error', error.toString(), result);
   }
 }
