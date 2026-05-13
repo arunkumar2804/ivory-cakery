@@ -100,55 +100,32 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ onClose }) => {
       setError('Please select the event date.');
       return;
     }
-    // ── Submit via hidden form + iframe (bypasses CORS entirely) ──
+    // ── NEW RELIABLE SUBMISSION METHOD ──
     setIsSubmitting(true);
 
     try {
-      // Create a hidden iframe to receive the form response
-      const iframeName = 'enquiry-submit-frame-' + Date.now();
-      const iframe = document.createElement('iframe');
-      iframe.name = iframeName;
-      iframe.style.display = 'none';
-      document.body.appendChild(iframe);
+      const formDataBody = new URLSearchParams();
+      formDataBody.append('name', formData.name.trim());
+      formDataBody.append('email', formData.email.trim());
+      formDataBody.append('phone', formData.phone.trim());
+      formDataBody.append('occasion', formData.occasion.trim());
+      formDataBody.append('cakeType', formData.cakeType);
+      formDataBody.append('eventDate', formData.eventDate);
+      formDataBody.append('message', formData.message.trim());
 
-      // Create a hidden form targeting the iframe
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = APPS_SCRIPT_URL;
-      form.target = iframeName; // Submit into hidden iframe, not the main window
-      form.style.display = 'none';
-
-      // Add all form fields as hidden inputs
-      const fields: Record<string, string> = {
-        name: formData.name.trim(),
-        email: formData.email.trim(),
-        phone: formData.phone.trim(),
-        occasion: formData.occasion.trim(),
-        cakeType: formData.cakeType,
-        eventDate: formData.eventDate,
-        message: formData.message.trim(),
-      };
-
-      Object.entries(fields).forEach(([key, value]) => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = key;
-        input.value = value;
-        form.appendChild(input);
+      // Use fetch with no-cors (Standard for Google Scripts)
+      await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formDataBody
       });
 
-      document.body.appendChild(form);
-      form.submit(); // This will POST the data to Apps Script
-
-      // Wait a moment for the submission to complete, then show success
-      setTimeout(() => {
-        setIsSubmitted(true);
-        setIsSubmitting(false);
-
-        // Cleanup: remove the hidden form and iframe
-        document.body.removeChild(form);
-        document.body.removeChild(iframe);
-      }, 2000);
+      // Show success state
+      setIsSubmitted(true);
+      setIsSubmitting(false);
 
     } catch (err) {
       setError('Something went wrong. Please try again or contact us on WhatsApp.');
