@@ -68,7 +68,7 @@ function initializeCRM() {
     const lastRow = enqSheet.getLastRow();
     if (lastRow > 1) {
       for (let r = 2; r <= lastRow; r++) {
-        const waFormula = `=HYPERLINK("https://wa.me/" & SUBSTITUTE(D${r}, "+", "") & "?text=" & ENCODEURL("Hi " & B${r} & "! 🎂 Just a quick update from Ivory Cakery. Your order " & J${r} & " is currently: " & H${r} & ". Have a sweet day!"), "📱 Send WA")`;
+        const waFormula = `=HYPERLINK("https://wa.me/" & SUBSTITUTE(D${r}, "+", "") & "?text=" & ENCODEURL("Hi " & B${r} & "! This is Ivory Cakery with an update on your " & F${r} & " order (" & J${r} & "). The current status is: " & H${r} & ". We are working hard to make it perfect for your celebration. Have a wonderful day!"), "Send WhatsApp Update")`;
         enqSheet.getRange(r, 11).setFormula(waFormula);
       }
     }
@@ -88,10 +88,9 @@ function initializeCRM() {
     invSheet.getRange('F2').setFormula('=COUNTA(A6:A30)');
     
     // WhatsApp Formula for Invoice Manager (A2 is Name, B2 is Order ID, E2 is Grand Total)
-    // We look up the phone from Enquiries Col D based on Order ID in B2
     const phoneLookup = `VLOOKUP(B2, {${SHEET_NAME}!J:J, ${SHEET_NAME}!D:D}, 2, 0)`;
-    const waInvMsg = `"Hi " & A2 & "! 🎂 Your invoice for order " & B2 & " is ready for ₹" & E2 & ". Please let us know if you have any questions!"`;
-    invSheet.getRange('G2').setFormula(`=HYPERLINK("https://wa.me/" & SUBSTITUTE(${phoneLookup}, "+", "") & "?text=" & ENCODEURL(${waInvMsg}), "🟢 Send via WA")`);
+    const waInvMsg = `"Hi " & A2 & "! This is Ivory Cakery. Your invoice for order " & B2 & " is ready for Rs. " & E2 & ". Please let us know if you have any questions! Have a wonderful day!"`;
+    invSheet.getRange('G2').setFormula(`=HYPERLINK("https://wa.me/" & SUBSTITUTE(${phoneLookup}, "+", "") & "?text=" & ENCODEURL(${waInvMsg}), "Send WhatsApp Invoice")`);
     
     invSheet.getRange('C2').setValue(0); // Default 0% discount
     
@@ -275,6 +274,10 @@ function handleInvoiceManagerEdit(e) {
     invSheet.getRange('D2').setFormula('=SUM(D6:D30)');
     invSheet.getRange('E2').setFormula('=D2 * (1 - C2/100)');
     invSheet.getRange('F2').setFormula('=COUNTA(A6:A30)');
+    
+    const phoneLookup = `VLOOKUP(B2, {${SHEET_NAME}!J:J, ${SHEET_NAME}!D:D}, 2, 0)`;
+    const waInvMsg = `"Hi " & A2 & "! This is Ivory Cakery. Your invoice for order " & B2 & " is ready for Rs. " & E2 & ". Please let us know if you have any questions! Have a wonderful day!"`;
+    invSheet.getRange('G2').setFormula(`=HYPERLINK("https://wa.me/" & SUBSTITUTE(${phoneLookup}, "+", "") & "?text=" & ENCODEURL(${waInvMsg}), "Send WhatsApp Invoice")`);
     
     for (let i = 6; i <= 30; i++) {
       invSheet.getRange('D' + i).setFormula(`=IF(AND(B${i}>0, C${i}>0), B${i}*C${i}, "")`);
@@ -619,8 +622,8 @@ function saveToSheet(timestamp, name, email, phone, occasion, cakeType, eventDat
   sheet.getRange(lastRow, 8).setDataValidation(rule);
   
   // Add WhatsApp Formula (Dynamic Link)
-  // Column D (4) is Phone, Column B (2) is Name, Column H (8) is Status
-  const waFormula = `=HYPERLINK("https://wa.me/" & SUBSTITUTE(D${lastRow}, "+", "") & "?text=" & ENCODEURL("Hi " & B${lastRow} & "! 🎂 Just a quick update from Ivory Cakery. Your order " & J${lastRow} & " is currently: " & H${lastRow} & ". Have a sweet day!"), "📱 Send WA")`;
+  // Column D (4) is Phone, Column B (2) is Name, Column F (6) is Cake Type, Column H (8) is Status
+  const waFormula = `=HYPERLINK("https://wa.me/" & SUBSTITUTE(D${lastRow}, "+", "") & "?text=" & ENCODEURL("Hi " & B${lastRow} & "! This is Ivory Cakery with an update on your " & F${lastRow} & " order (" & J${lastRow} & "). The current status is: " & H${lastRow} & ". We are working hard to make it perfect for your celebration. Have a wonderful day!"), "Send WhatsApp Update")`;
   sheet.getRange(lastRow, 11).setFormula(waFormula);
 }
 
