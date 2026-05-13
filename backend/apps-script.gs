@@ -164,25 +164,39 @@ function doPost(e) {
     const eventDate = params.eventDate || '';
     const message   = params.message   || 'None';
     
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const sheet = ss.getSheetByName(SHEET_NAME);
     const orderId = generateOrderId();
     
-    // 1. Save to Sheet (Premium Version)
-    saveToSheet(new Date(), name, email, phone, occasion, cakeType, eventDate, message, 'New', orderId);
+    // 1. PROVEN WRITING METHOD (appendRow)
+    sheet.appendRow([
+      new Date(), 
+      name, 
+      email, 
+      " " + phone, 
+      occasion, 
+      cakeType, 
+      eventDate, 
+      'New', 
+      message, 
+      orderId, 
+      ""
+    ]);
     SpreadsheetApp.flush();
     result.saved = true;
 
-    // 2. Owner Notifications (Email + Telegram)
-    const ownerRes = sendOwnerNotification(name, email, phone, occasion, cakeType, eventDate, message, orderId);
-    result.ownerEmailSent = ownerRes.ownerEmailSent;
-    result.telegramSent = ownerRes.telegramSent;
+    // 2. OWNER EMAIL (Safest Notification)
+    GmailApp.sendEmail(OWNER_EMAIL, "NEW ENQUIRY: " + name, "Order ID: " + orderId + "\nDetails: " + cakeType);
+    result.ownerEmailSent = true;
 
-    // 3. Customer Luxury Email
-    result.customerEmailSent = sendOrderStatusEmail(email, name, {
+    // 3. CUSTOMER EMAIL
+    sendOrderStatusEmail(email, name, {
       statusKey: 'ordered',
       orderId: orderId,
       cakeType: cakeType,
       bodyText: `Your enquiry for the <strong>${cakeType}</strong> has been successfully received. We will be in touch shortly!`
-    }) === true;
+    });
+    result.customerEmailSent = true;
     
     // 4. SMS Notification
     if (phone && phone !== 'No Phone' && FAST2SMS_API_KEY !== 'YOUR_API_KEY_HERE') {
