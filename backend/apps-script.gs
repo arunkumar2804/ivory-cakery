@@ -155,18 +155,24 @@ function doPost(e) {
     const message   = params.message   || 'None';
     
     const timestamp = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
-    const orderId   = generateOrderId();
     
-    // Process Data
-    saveToSheet(timestamp, name, email, phone, occasion, cakeType, eventDate, message, "New", orderId);
-    result.saved = true;
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    Logger.log('Target Spreadsheet ID: ' + ss.getId());
+    
+    let sheet = ss.getSheetByName(SHEET_NAME);
+    if (!sheet) {
+      Logger.log('Sheet "' + SHEET_NAME + '" not found. Creating it now.');
+      sheet = ss.insertSheet(SHEET_NAME);
+    }
 
-    const ownerResult = sendOwnerNotification(name, email, phone, occasion, cakeType, eventDate, message, orderId);
-    result.ownerEmailSent = ownerResult.ownerEmailSent;
-    result.telegramSent = ownerResult.telegramSent;
-    result.errors = result.errors.concat(ownerResult.errors);
+    const orderId = generateOrderId();
     
-    // Send Customer Thank You
+    // 3a. Save to Sheet
+    saveToSheet(new Date(), name, email, phone, occasion, cakeType, eventDate, message, 'New', orderId);
+    result.sheetUpdated = true;
+    Logger.log('Saved to row: ' + sheet.getLastRow());
+
+    // 3b. Send Email to Customer
     result.customerEmailSent = sendOrderStatusEmail(email, name, {
       statusKey: 'ordered',
       orderId: orderId,
@@ -175,7 +181,7 @@ function doPost(e) {
     }) === true;
     
     // 3c. Send SMS to Customer
-    if (phone) {
+    if (phone && FAST2SMS_API_KEY !== 'YOUR_API_KEY_HERE') {
       const smsMsg = getStatusMessage(name, cakeType, orderId, 'New');
       sendFast2SMS(phone, smsMsg);
     }
