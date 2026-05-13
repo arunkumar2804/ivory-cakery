@@ -666,31 +666,52 @@ function ensureSheetSchema(sheet) {
 }
 
 function saveToSheet(timestamp, name, email, phone, occasion, cakeType, eventDate, message, status, orderId) {
-  const ss = getSS();
-  let sheet = ss.getSheetByName(SHEET_NAME);
-  if (!sheet) sheet = ss.insertSheet(SHEET_NAME);
-  ensureSheetSchema(sheet);
+  try {
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    let sheet = ss.getSheetByName(SHEET_NAME);
+    if (!sheet) {
+      sheet = ss.insertSheet(SHEET_NAME);
+      ensureSheetSchema(sheet);
+    }
+    
+    // Explicitly add a row and set values (harder for Google to ignore)
+    const nextRow = sheet.getLastRow() + 1;
+    const rowData = [
+      timestamp, 
+      name, 
+      email, 
+      " " + phone, 
+      occasion, 
+      cakeType, 
+      formatEventDate(eventDate), 
+      status, 
+      message, 
+      orderId, 
+      ""
+    ];
+    
+    sheet.getRange(nextRow, 1, 1, rowData.length).setValues([rowData]);
+    SpreadsheetApp.flush();
+
+    // Set Status Dropdown
+    const rule = SpreadsheetApp.newDataValidation()
+      .requireValueInList(['New', 'Preparing', 'Ready to Pickup', 'Completed', 'Cancelled'], true)
+      .build();
+    sheet.getRange(nextRow, 8).setDataValidation(rule);
   
-  sheet.appendRow([timestamp, name, email, phone, occasion, cakeType, formatEventDate(eventDate), status, message, orderId, ""]);
-  
-  const lastRow = sheet.getLastRow();
-  
-  // Set Status Dropdown
-  const rule = SpreadsheetApp.newDataValidation()
-    .requireValueInList(['New', 'Preparing', 'Ready to Pickup', 'Completed', 'Cancelled'], true)
-    .build();
-  sheet.getRange(lastRow, 8).setDataValidation(rule);
-  
-  // Add WhatsApp Formula (Dynamic Link)
-  const waFormula = `=HYPERLINK("https://wa.me/" & SUBSTITUTE(D${lastRow}, "+", "") & "?text=" & ENCODEURL(IFS(
-    H${lastRow}="New", "Hi " & B${lastRow} & "! This is *Ivory Cakery*. We have *successfully received* your order for a *" & F${lastRow} & "* (" & J${lastRow} & "). Our team will start crafting it soon!",
-    H${lastRow}="Preparing", "Hi " & B${lastRow} & "! Great news! Your *" & F${lastRow} & "* (" & J${lastRow} & ") is now in the *Preparing* stage. We are using the finest ingredients to bring your vision to life!",
-    H${lastRow}="Ready to Pickup", "Hi " & B${lastRow} & "! Your delicious *" & F${lastRow} & "* (" & J${lastRow} & ") is now *Ready to Pickup*! We can't wait for you to see it!",
-    H${lastRow}="Completed", "Hi " & B${lastRow} & "! Your order (" & J${lastRow} & ") is now *Completed*. Thank you for choosing *Ivory Cakery*! We hope you love it!",
-    H${lastRow}="Cancelled", "Hi " & B${lastRow} & "! This is Ivory Cakery. We are sorry to inform you that your order (" & J${lastRow} & ") has been *Cancelled*. Please contact us for help.",
-    TRUE, "Hi " & B${lastRow} & "! Just an update on your order (" & J${lastRow} & "). Current status: *" & H${lastRow} & "*"
-  )), "Send WhatsApp Update")`;
-  sheet.getRange(lastRow, 11).setFormula(waFormula);
+    // Add WhatsApp Formula (Dynamic Link)
+    const waFormula = `=HYPERLINK("https://wa.me/" & SUBSTITUTE(D${nextRow}, "+", "") & "?text=" & ENCODEURL(IFS(
+      H${nextRow}="New", "Hi " & B${nextRow} & "! This is *Ivory Cakery*. We have *successfully received* your order for a *" & F${nextRow} & "* (" & J${nextRow} & "). Our team will start crafting it soon!",
+      H${nextRow}="Preparing", "Hi " & B${nextRow} & "! Great news! Your *" & F${nextRow} & "* (" & J${nextRow} & ") is now in the *Preparing* stage. We are using the finest ingredients to bring your vision to life!",
+      H${nextRow}="Ready to Pickup", "Hi " & B${nextRow} & "! Your delicious *" & F${nextRow} & "* (" & J${nextRow} & ") is now *Ready to Pickup*! We can't wait for you to see it!",
+      H${nextRow}="Completed", "Hi " & B${nextRow} & "! Your order (" & J${nextRow} & ") is now *Completed*. Thank you for choosing *Ivory Cakery*! We hope you love it!",
+      H${nextRow}="Cancelled", "Hi " & B${nextRow} & "! This is Ivory Cakery. We are sorry to inform you that your order (" & J${nextRow} & ") has been *Cancelled*. Please contact us for help.",
+      TRUE, "Hi " & B${nextRow} & "! Just an update on your order (" & J${nextRow} & "). Current status: *" & H${nextRow} & "*"
+    )), "Send WhatsApp Update")`;
+    sheet.getRange(nextRow, 11).setFormula(waFormula);
+  } catch (err) {
+    Logger.log('Error in saveToSheet: ' + err.toString());
+  }
 }
 
 function formatEventDate(eventDate) {
