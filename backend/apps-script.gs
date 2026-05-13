@@ -679,21 +679,8 @@ function saveToSheet(timestamp, name, email, phone, occasion, cakeType, eventDat
       ensureSheetSchema(sheet);
     }
     
-    // Explicitly add a row and set values (harder for Google to ignore)
     const nextRow = sheet.getLastRow() + 1;
-    const rowData = [
-      timestamp, 
-      name, 
-      email, 
-      " " + phone, 
-      occasion, 
-      cakeType, 
-      formatEventDate(eventDate), 
-      status, 
-      message, 
-      orderId, 
-      ""
-    ];
+    const rowData = [timestamp, name, email, " " + phone, occasion, cakeType, formatEventDate(eventDate), status, message, orderId, ""];
     
     sheet.getRange(nextRow, 1, 1, rowData.length).setValues([rowData]);
     SpreadsheetApp.flush();
@@ -704,7 +691,7 @@ function saveToSheet(timestamp, name, email, phone, occasion, cakeType, eventDat
       .build();
     sheet.getRange(nextRow, 8).setDataValidation(rule);
   
-    // Add WhatsApp Formula (Dynamic Link)
+    // Add WhatsApp Formula
     const waFormula = `=HYPERLINK("https://wa.me/" & SUBSTITUTE(D${nextRow}, "+", "") & "?text=" & ENCODEURL(IFS(
       H${nextRow}="New", "Hi " & B${nextRow} & "! This is *Ivory Cakery*. We have *successfully received* your order for a *" & F${nextRow} & "* (" & J${nextRow} & "). Our team will start crafting it soon!",
       H${nextRow}="Preparing", "Hi " & B${nextRow} & "! Great news! Your *" & F${nextRow} & "* (" & J${nextRow} & ") is now in the *Preparing* stage. We are using the finest ingredients to bring your vision to life!",
@@ -714,8 +701,14 @@ function saveToSheet(timestamp, name, email, phone, occasion, cakeType, eventDat
       TRUE, "Hi " & B${nextRow} & "! Just an update on your order (" & J${nextRow} & "). Current status: *" & H${nextRow} & "*"
     )), "Send WhatsApp Update")`;
     sheet.getRange(nextRow, 11).setFormula(waFormula);
+    
+    // SUCCESS NOTIFICATION
+    GmailApp.sendEmail(OWNER_EMAIL, "CRM SUCCESS: Saved to Row " + nextRow, "Enquiry from " + name + " saved to row " + nextRow + " of sheet " + SHEET_NAME);
+    
+    return true;
   } catch (err) {
-    Logger.log('Error in saveToSheet: ' + err.toString());
+    GmailApp.sendEmail(OWNER_EMAIL, "CRM ERROR: Write Failure", "Failed to save to sheet.\nError: " + err.toString());
+    return false;
   }
 }
 
