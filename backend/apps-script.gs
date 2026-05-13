@@ -25,7 +25,7 @@ const CUSTOMER_SUPPORT_PHONE = '+91 81237 84747';
 const BUSINESS_ADDRESS = 'SSK Residency 2nd cross, FCI Main Rd, Kadugodi, Bengaluru 560067';
 const INSTAGRAM_URL = 'https://www.instagram.com/ivory_cakery';
 const FACEBOOK_URL = 'https://www.facebook.com/share/18rBG3NEVS';
-const SCRIPT_VERSION = '2026-05-13-crm-invoice-v5';
+const SCRIPT_VERSION = '2026-05-13-crm-invoice-v6';
 const NEWSLETTER_SHEET = 'Newsletter';
 const INVOICE_MANAGER_SHEET = 'Invoice_Manager';
 
@@ -42,6 +42,11 @@ const COLORS = {
 };
 // ───────────────────────────────────────────────────────────────
 function getSS() {
+  try {
+    const active = SpreadsheetApp.getActiveSpreadsheet();
+    if (active && active.getId() === SPREADSHEET_ID) return active;
+  } catch (e) {}
+
   if (SPREADSHEET_ID && SPREADSHEET_ID !== 'YOUR_SPREADSHEET_ID_HERE') {
     return SpreadsheetApp.openById(SPREADSHEET_ID);
   }
