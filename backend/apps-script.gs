@@ -152,11 +152,6 @@ function initializeCRM() {
 
 /** 1. MAIN ENTRY POINT: Handles website form submissions */
 function doPost(e) {
-  // DIAGNOSTIC: Email exactly what was received to the owner
-  try {
-    GmailApp.sendEmail(OWNER_EMAIL, "CRM DEBUG: Incoming Request", "Data received: " + JSON.stringify(e));
-  } catch(err) {}
-
   const result = {
     version: SCRIPT_VERSION,
     saved: false,
@@ -167,10 +162,8 @@ function doPost(e) {
   };
 
   try {
-    // Extract parameters from multiple possible locations in the event object
+    // Extract data from the parameter object
     const params = (e && e.parameter) ? e.parameter : (e && e.parameters) ? e.parameters : {};
-
-    // Extract data with fallbacks to prevent crashes
     const name      = params.name      || 'Guest';
     const email     = params.email     || '';
     const phone     = params.phone     || 'No Phone';
@@ -180,23 +173,21 @@ function doPost(e) {
     const message   = params.message   || 'None';
     
     const ss = getSS();
-    Logger.log('Target Spreadsheet ID: ' + ss.getId());
-    
     let sheet = ss.getSheetByName(SHEET_NAME);
     if (!sheet) {
-      Logger.log('Sheet "' + SHEET_NAME + '" not found. Attempting to create.');
       sheet = ss.insertSheet(SHEET_NAME);
+      const headers = ['Timestamp', 'Customer Name', 'Email', 'Phone', 'Occasion', 'Cake Type', 'Event Date', 'Status', 'Message', 'Order ID', 'Notes'];
+      sheet.appendRow(headers);
     }
 
     const orderId = generateOrderId();
     
     // 3a. Save to Sheet
     saveToSheet(new Date(), name, email, phone, occasion, cakeType, eventDate, message, 'New', orderId);
-    SpreadsheetApp.flush(); // Force write to sheet
-    result.sheetUpdated = true;
-    Logger.log('Successfully saved to row: ' + sheet.getLastRow());
+    SpreadsheetApp.flush(); // FORCE WRITE
+    result.saved = true;
 
-    // 3b. Send Owner Notification (Crucial Backup)
+    // 3b. Send Notifications
     const ownerResult = sendOwnerNotification(name, email, phone, occasion, cakeType, eventDate, message, orderId);
     result.ownerEmailSent = ownerResult.ownerEmailSent;
     result.telegramSent = ownerResult.telegramSent;
@@ -206,7 +197,7 @@ function doPost(e) {
       statusKey: 'ordered',
       orderId: orderId,
       cakeType: cakeType,
-      bodyText: `Your enquiry for the <strong>${cakeType}</strong> has been successfully received. We are currently reviewing your request and will be in touch shortly to finalize the details.`
+      bodyText: `Your enquiry for the <strong>${cakeType}</strong> has been successfully received. We will be in touch shortly to finalize the details.`
     }) === true;
     
     // 3d. Send SMS to Customer
