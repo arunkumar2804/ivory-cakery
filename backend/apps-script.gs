@@ -68,7 +68,7 @@ function initializeCRM() {
     const lastRow = enqSheet.getLastRow();
     if (lastRow > 1) {
       for (let r = 2; r <= lastRow; r++) {
-        const waFormula = `=HYPERLINK("https://wa.me/" & SUBSTITUTE(D${r}, "+", "") & "?text=" & ENCODEURL("Hi " & B${r} & "! This is Ivory Cakery with an update on your " & F${r} & " order (" & J${r} & "). The current status is: " & H${r} & ". We are working hard to make it perfect for your celebration. Have a wonderful day!"), "Send WhatsApp Update")`;
+        const waFormula = `=HYPERLINK("https://wa.me/" & SUBSTITUTE(D${r}, "+", "") & "?text=" & ENCODEURL("Hi " & B${r} & "! This is Ivory Cakery with an update on your " & F${r} & " order (" & J${r} & "). The current status is: " & SUBSTITUTE(H${r}, "New", "Order Received") & ". We are working hard to make it perfect for your celebration. Have a wonderful day!"), "Send WhatsApp Update")`;
         enqSheet.getRange(r, 11).setFormula(waFormula);
       }
     }
@@ -623,7 +623,7 @@ function saveToSheet(timestamp, name, email, phone, occasion, cakeType, eventDat
   
   // Add WhatsApp Formula (Dynamic Link)
   // Column D (4) is Phone, Column B (2) is Name, Column F (6) is Cake Type, Column H (8) is Status
-  const waFormula = `=HYPERLINK("https://wa.me/" & SUBSTITUTE(D${lastRow}, "+", "") & "?text=" & ENCODEURL("Hi " & B${lastRow} & "! This is Ivory Cakery with an update on your " & F${lastRow} & " order (" & J${lastRow} & "). The current status is: " & H${lastRow} & ". We are working hard to make it perfect for your celebration. Have a wonderful day!"), "Send WhatsApp Update")`;
+  const waFormula = `=HYPERLINK("https://wa.me/" & SUBSTITUTE(D${lastRow}, "+", "") & "?text=" & ENCODEURL("Hi " & B${lastRow} & "! This is Ivory Cakery with an update on your " & F${lastRow} & " order (" & J${lastRow} & "). The current status is: " & SUBSTITUTE(H${lastRow}, "New", "Order Received") & ". We are working hard to make it perfect for your celebration. Have a wonderful day!"), "Send WhatsApp Update")`;
   sheet.getRange(lastRow, 11).setFormula(waFormula);
 }
 
