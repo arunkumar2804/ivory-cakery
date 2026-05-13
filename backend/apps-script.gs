@@ -620,12 +620,15 @@ function triggerNewsletter() {
   const enqSheet = ss.getSheetByName(SHEET_NAME);
   const customers = enqSheet.getRange(2, 2, enqSheet.getLastRow() - 1, 2).getValues();
   let count = 0;
+  const processedEmails = new Set();
 
   customers.forEach(cust => {
     const name = cust[0];
-    const email = cust[1];
-    if (email && email.includes('@')) {
+    const email = cust[1] ? cust[1].toString().toLowerCase().trim() : "";
+    
+    if (email && email.includes('@') && !processedEmails.has(email)) {
       sendNewsletterEmail(email, name, subject, content);
+      processedEmails.add(email);
       count++;
     }
   });
