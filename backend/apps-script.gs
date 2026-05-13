@@ -228,6 +228,11 @@ function doGet() {
 /** Manual delivery test: Run this once inside Apps Script to authorize and verify notifications. */
 function testNotifications() {
   const orderId = 'IC-TEST-' + Utilities.formatDate(new Date(), 'Asia/Kolkata', 'yyyyMMdd-HHmmss');
+  // 1. Test Sheet Writing
+  saveToSheet(new Date(), 'TEST CUSTOMER', OWNER_EMAIL, CUSTOMER_SUPPORT_PHONE, 'Test Occasion', 'Test Cake', new Date(), 'This is a manual test.', 'New', orderId);
+  SpreadsheetApp.flush();
+
+  // 2. Test Notifications
   const ownerResult = sendOwnerNotification(
     'Test Customer',
     OWNER_EMAIL,
@@ -238,20 +243,21 @@ function testNotifications() {
     'This is a test notification from Ivory Cakery.',
     orderId
   );
+  
   const customerEmailSent = sendOrderStatusEmail(OWNER_EMAIL, 'Test Customer', {
     statusKey: 'ready',
     orderId: orderId,
     cakeType: 'Test Cake',
-    bodyText: 'This is a test customer email from Ivory Cakery. If you received this, Gmail delivery and inline PNG icons are working.'
+    bodyText: 'This is a test customer email from Ivory Cakery.'
   });
   
   // 3. Test SMS delivery
-  if (FAST2SMS_API_KEY !== 'YOUR_API_KEY_HERE') {
+  if (FAST2SMS_API_KEY && FAST2SMS_API_KEY !== 'YOUR_API_KEY_HERE') {
     const testSmsMsg = "Hi Test! This is a test SMS from Ivory Cakery. Your automated SMS service is now ACTIVE!";
     sendFast2SMS(CUSTOMER_SUPPORT_PHONE, testSmsMsg);
   }
   
-  return 'Test notifications triggered. Check your Email, Telegram, and Phone!';
+  return 'Full test triggered: Check Sheet (last row), Email, and Phone!';
 }
 
 
