@@ -70,11 +70,10 @@ function initializeCRM() {
   if (!invSheet) {
     invSheet = ss.insertSheet(INVOICE_MANAGER_SHEET);
     // Header Section
-    invSheet.getRange('A1:E1').setValues([['Select Order ID', 'Customer Name', 'Discount (%)', 'Subtotal', 'Grand Total']])
+    invSheet.getRange('A1:E1').setValues([['Customer Name', 'Order ID', 'Discount (%)', 'Subtotal', 'Grand Total']])
             .setFontWeight('bold').setBackground(COLORS.accent).setFontColor('#ffffff');
     
-    // Summary Data row (A2 will have dropdown)
-    invSheet.getRange('B2').setFormula(`=IFERROR(INDEX(${SHEET_NAME}!B:B, MATCH(A2, ${SHEET_NAME}!J:J, 0)), "Select ID")`);
+    // Summary Data row (A2 is for name selection, B2 filled by script)
     invSheet.getRange('D2').setFormula('=SUM(D6:D30)');
     invSheet.getRange('E2').setFormula('=D2 * (1 - C2/100)');
     invSheet.getRange('C2').setValue(0); // Default 0% discount
@@ -85,11 +84,11 @@ function initializeCRM() {
     
     // Item formulas
     for (let i = 6; i <= 30; i++) {
-      invSheet.getRange('D' + i).setFormula(`=B${i}*C${i}`);
+      invSheet.getRange('D' + i).setFormula(`=IF(AND(B${i}>0, C${i}>0), B${i}*C${i}, "")`);
     }
     
-    // Add dropdown to A2
-    const rule = SpreadsheetApp.newDataValidation().requireValueInRange(enqSheet.getRange('J2:J1000')).build();
+    // Add dropdown to A2 (Customer Names from Enquiries Col B)
+    const rule = SpreadsheetApp.newDataValidation().requireValueInRange(enqSheet.getRange('B2:B1000')).build();
     invSheet.getRange('A2').setDataValidation(rule);
     
     invSheet.setColumnWidth(1, 250);
@@ -320,7 +319,7 @@ function handleStatusChange(e) {
     }
   } catch (err) {
     Logger.log('Status change failed: ' + err.toString());
-    ss.toast("Failed to send email. Check logs.", "❌ Error");
+    ss.toast("Error: " + err.toString(), "❌ Email Failed");
   }
 }
 
@@ -769,7 +768,7 @@ function generateInvoicePdf(orderId) {
         email: enqData[i][2],
         phone: enqData[i][3],
         date: enqData[i][0],
-        discount: invSheet.getRange('C2').getValue() || 0
+        discount: parseFloat(invSheet.getRange('C2').getValue()) || 0
       };
       break;
     }
@@ -784,15 +783,16 @@ function generateInvoicePdf(orderId) {
   const itemData = invSheet.getRange('A6:D30').getValues();
   for (let i = 0; i < itemData.length; i++) {
     const desc = itemData[i][0];
-    const qty = itemData[i][1];
-    const price = itemData[i][2];
+    const qty = parseFloat(itemData[i][1]);
+    const price = parseFloat(itemData[i][2]);
     
-    if (desc && qty > 0) {
-      const lineTotal = qty * price;
+    if (desc && !isNaN(qty) && qty > 0) {
+      const validPrice = isNaN(price) ? 0 : price;
+      const lineTotal = qty * validPrice;
       items.push({
         desc: desc,
         qty: qty,
-        price: price,
+        price: validPrice,
         total: lineTotal
       });
       subtotal += lineTotal;
