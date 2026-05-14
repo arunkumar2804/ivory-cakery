@@ -8,15 +8,15 @@ interface CreationsProps {
 
 const Creations: React.FC<CreationsProps> = ({ onEnquiryClick }) => {
   const categories = [
-    { name: 'Kids Theme Cakes', img: '/images/kids_theme_cake.png', subtitle: 'Fun & Magical Sculptures', color: 'bg-cream' },
-    { name: 'Wedding Cakes', img: '/images/wedding_cake.png', subtitle: 'Bespoke Centerpieces', color: 'bg-coral-light' },
-    { name: 'Bento Cakes', img: '/images/bento_cake.png', subtitle: 'Personal Showstoppers', color: 'bg-peach-light' },
-    { name: 'Custom Themes', img: '/images/wedding_cake.png', subtitle: 'Sculpted Masterpieces', color: 'bg-cream' },
-    { name: 'Birthday Cakes', img: '/images/kids_theme_cake.png', subtitle: 'Sweet Grandeur', color: 'bg-coral-light' },
-    { name: 'Anniversary Cakes', img: '/images/wedding_cake.png', subtitle: 'Romantic Layering', color: 'bg-peach-light' },
-    { name: 'Gourmet Bites', img: '/images/bento_cake.png', subtitle: 'Exquisite Finishes', color: 'bg-cream' },
-    { name: 'Photo Cakes', img: '/images/kids_theme_cake.png', subtitle: 'Edible Realism', color: 'bg-coral-light' },
-    { name: 'Engagement Cakes', img: '/images/wedding_cake.png', subtitle: 'Stunning Showpieces', color: 'bg-peach-light' },
+    { name: 'Kids Theme Cakes', img: '/images/AVIF/kids_theme_cake.avif', subtitle: 'Fun & Magical Sculptures', color: 'bg-cream' },
+    { name: 'Wedding Cakes', img: '/images/AVIF/wedding_cake.avif', subtitle: 'Bespoke Centerpieces', color: 'bg-coral-light' },
+    { name: 'Bento Cakes', img: '/images/AVIF/bento_cake.avif', subtitle: 'Personal Showstoppers', color: 'bg-peach-light' },
+    { name: 'Custom Themes', img: '/images/AVIF/custom_theme_cake.avif', subtitle: 'Sculpted Masterpieces', color: 'bg-cream' },
+    { name: 'Birthday Cakes', img: '/images/AVIF/birthday_cake.avif', subtitle: 'Sweet Grandeur', color: 'bg-coral-light' },
+    { name: 'Anniversary Cakes', img: '/images/AVIF/anniversary_cake.avif', subtitle: 'Romantic Layering', color: 'bg-peach-light' },
+    { name: 'Gourmet Bites', img: '/images/AVIF/gourmet_bites.avif', subtitle: 'Exquisite Finishes', color: 'bg-cream' },
+    { name: 'Photo Cakes', img: '/images/AVIF/photo_cake.avif', subtitle: 'Edible Realism', color: 'bg-coral-light' },
+    { name: 'Engagement Cakes', img: '/images/AVIF/engagement_cake.avif', subtitle: 'Stunning Showpieces', color: 'bg-peach-light' },
   ];
 
   return (

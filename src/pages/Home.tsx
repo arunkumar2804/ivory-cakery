@@ -9,12 +9,12 @@ interface HomeProps {
 
 const Home: React.FC<HomeProps> = ({ onEnquiryClick }) => {
   const categories = [
-    { name: 'Kids Theme Cakes', img: '/images/kids_theme_cake.png', subtitle: 'Fun & Magical Tiers', color: 'bg-cream' },
-    { name: 'Wedding Cakes', img: '/images/wedding_cake.png', subtitle: 'Bespoke Centerpieces', color: 'bg-coral-light' },
-    { name: 'Bento Cakes', img: '/images/bento_cake.png', subtitle: 'Personal Delights', color: 'bg-peach-light' },
-    { name: 'Custom Themes', img: '/images/wedding_cake.png', subtitle: 'Sculpted Artistry', color: 'bg-cream' },
-    { name: 'Birthday Cakes', img: '/images/kids_theme_cake.png', subtitle: 'Sweet Memories', color: 'bg-coral-light' },
-    { name: 'Gourmet Bites', img: '/images/bento_cake.png', subtitle: 'Luxurious Flavors', color: 'bg-peach-light' },
+    { name: 'Kids Theme Cakes', img: '/images/AVIF/kids_theme_cake.avif', subtitle: 'Fun & Magical Tiers', color: 'bg-cream' },
+    { name: 'Wedding Cakes', img: '/images/AVIF/wedding_cake.avif', subtitle: 'Bespoke Centerpieces', color: 'bg-coral-light' },
+    { name: 'Bento Cakes', img: '/images/AVIF/bento_cake.avif', subtitle: 'Personal Delights', color: 'bg-peach-light' },
+    { name: 'Custom Themes', img: '/images/AVIF/custom_theme_cake.avif', subtitle: 'Sculpted Artistry', color: 'bg-cream' },
+    { name: 'Birthday Cakes', img: '/images/AVIF/birthday_cake.avif', subtitle: 'Sweet Memories', color: 'bg-coral-light' },
+    { name: 'Gourmet Bites', img: '/images/AVIF/gourmet_bites.avif', subtitle: 'Luxurious Flavors', color: 'bg-peach-light' },
   ];
 
   return (
@@ -54,7 +54,7 @@ const Home: React.FC<HomeProps> = ({ onEnquiryClick }) => {
             
             {/* Massive Hero Image Showcase */}
             <div className="hero-massive-wrapper">
-              <img src="/images/hero_elegant_cake.png" alt="Delicious Bespoke Cake" className="hero-massive-cake" />
+              <img src="/images/AVIF/wedding_cake.avif" alt="Delicious Bespoke Cake" className="hero-massive-cake" />
             </div>
 
             <div className="floating-sticker anim-float">
@@ -78,7 +78,7 @@ const Home: React.FC<HomeProps> = ({ onEnquiryClick }) => {
             <div className="dots-accent-left"></div>
             
             <div className="story-massive-wrapper">
-              <img src="/images/wedding_cake.png" alt="Baker crafting a cake" className="story-massive-img" />
+              <img src="/images/AVIF/wedding_cake.avif" alt="Baker crafting a cake" className="story-massive-img" />
             </div>
             
             <div className="mini-badge-square"></div>
@@ -193,7 +193,7 @@ const Home: React.FC<HomeProps> = ({ onEnquiryClick }) => {
             
             {/* Massive Display Visual */}
             <div className="phil-massive-wrapper">
-              <img src="/images/kids_theme_cake.png" alt="Delicious Featured Cake" className="phil-massive-cake" />
+              <img src="/images/AVIF/kids_theme_cake.avif" alt="Delicious Featured Cake" className="phil-massive-cake" />
             </div>
 
             <div className="floating-geo geo-circle-solid-small"></div>
