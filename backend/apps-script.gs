@@ -25,7 +25,7 @@ const CUSTOMER_SUPPORT_PHONE = '+91 81237 84747';
 const BUSINESS_ADDRESS = 'SSK Residency 2nd cross, FCI Main Rd, Kadugodi, Bengaluru 560067';
 const INSTAGRAM_URL = 'https://www.instagram.com/ivory_cakery';
 const FACEBOOK_URL = 'https://www.facebook.com/share/18rBG3NEVS';
-const SCRIPT_VERSION = '2026-05-14-crm-v7-premium';
+const SCRIPT_VERSION = '2026-05-14-crm-v8-sms';
 const NEWSLETTER_SHEET = 'Newsletter';
 const INVOICE_MANAGER_SHEET = 'Invoice_Manager';
 
@@ -200,7 +200,8 @@ function doPost(e) {
     
     // 4. SMS Notification
     if (phone && phone !== 'No Phone' && FAST2SMS_API_KEY !== 'YOUR_API_KEY_HERE') {
-      const smsMsg = getStatusMessage(name, cakeType, orderId, 'New');
+      const note = params.message || '';
+      const smsMsg = getStatusMessage(name, cakeType, orderId, 'New', note);
       sendFast2SMS(phone, smsMsg);
       result.smsSent = true;
     }
@@ -364,7 +365,8 @@ function handleStatusChange(e) {
 
   const config = { orderId, cakeType: type };
   const phone  = data[3];
-  const smsMsg = getStatusMessage(name, type, orderId, statusRaw);
+  const note   = data[8];
+  const smsMsg = getStatusMessage(name, type, orderId, statusRaw, note);
 
   try {
     if (status === "preparing") {
@@ -649,21 +651,21 @@ function getEmailTheme(statusKey) {
   return themes[statusKey] || themes.ordered;
 }
 
-function getStatusMessage(name, cakeType, orderId, status) {
+function getStatusMessage(name, cakeType, orderId, status, note) {
   const s = status.toLowerCase();
-  if (s.includes('new')) {
-    return `Hi ${name}! This is *Ivory Cakery*. We have *successfully received* your order for a *${cakeType}* (${orderId}). Our team will start crafting it soon!`;
-  } else if (s.includes('preparing')) {
-    return `Hi ${name}! Great news! Your *${cakeType}* (${orderId}) is now in the *Preparing* stage. We are using the finest ingredients to bring your vision to life!`;
-  } else if (s.includes('ready')) {
-    return `Hi ${name}! Your delicious *${cakeType}* (${orderId}) is now *Ready to Pickup*! We can't wait for you to see it!`;
-  } else if (s.includes('completed')) {
-    return `Hi ${name}! Your order (${orderId}) is now *Completed*. Thank you for choosing *Ivory Cakery*! We hope you love it!`;
-  } else if (s.includes('cancelled')) {
-    return `Hi ${name}! This is Ivory Cakery. We are sorry to inform you that your order (${orderId}) has been *Cancelled*. Please contact us for help.`;
+  let msg = `Order ${orderId}: Your ${cakeType} is now ${status}. `;
+  
+  if (note && note.trim() && note.length < 60) {
+    msg += note.trim() + " ";
   } else {
-    return `Hi ${name}! Just an update on your order (${orderId}). Current status: *${status}*`;
+    if (s.includes('new')) msg += "We've received your request! ";
+    else if (s.includes('preparing')) msg += "Crafting it now! ";
+    else if (s.includes('ready')) msg += "Ready for pickup! ";
+    else if (s.includes('completed')) msg += "Thank you! ";
+    else if (s.includes('cancelled')) msg += "Contact us for help. ";
   }
+  
+  return msg + "- Ivory Cakery";
 }
 
 function ensureSheetSchema(sheet) {
