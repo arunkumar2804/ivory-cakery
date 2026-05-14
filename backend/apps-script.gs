@@ -84,9 +84,14 @@ function initializeCRM() {
       enqSheet.getRange(1, 11).setValue('WhatsApp').setFontWeight('bold').setBackground(COLORS.bg);
     }
     
-    // Backfill WhatsApp formulas for existing rows
+    // Backfill WhatsApp formulas and Status Dropdowns for existing rows
     const lastRow = enqSheet.getLastRow();
     if (lastRow > 1) {
+      const statusRule = SpreadsheetApp.newDataValidation()
+        .requireValueInList(['New', 'Preparing', 'Ready to Pickup', 'Completed', 'Cancelled'], true)
+        .build();
+      enqSheet.getRange(2, 8, lastRow - 1, 1).setDataValidation(statusRule);
+
       for (let r = 2; r <= lastRow; r++) {
         const waFormula = `=HYPERLINK("https://wa.me/" & SUBSTITUTE(D${r}, "+", "") & "?text=" & ENCODEURL(IFS(
           H${r}="New", "Hi " & B${r} & "! This is *Ivory Cakery*. We have *successfully received* your order for a *" & F${r} & "* (" & J${r} & "). Our team will start crafting it soon!",
@@ -187,6 +192,11 @@ function doPost(e) {
         orderId, 
         ""
       ]);
+      const lastRow = sheet.getLastRow();
+      const statusRule = SpreadsheetApp.newDataValidation()
+        .requireValueInList(['New', 'Preparing', 'Ready to Pickup', 'Completed', 'Cancelled'], true)
+        .build();
+      sheet.getRange(lastRow, 8).setDataValidation(statusRule);
       SpreadsheetApp.flush();
       result.saved = true;
       Logger.log('Saved to sheet: ' + orderId);
