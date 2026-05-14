@@ -25,7 +25,7 @@ const CUSTOMER_SUPPORT_PHONE = '+91 81237 84747';
 const BUSINESS_ADDRESS = 'SSK Residency 2nd cross, FCI Main Rd, Kadugodi, Bengaluru 560067';
 const INSTAGRAM_URL = 'https://www.instagram.com/ivory_cakery';
 const FACEBOOK_URL = 'https://www.facebook.com/share/18rBG3NEVS';
-const SCRIPT_VERSION = '2026-05-14-crm-v9-detailed-sms';
+const SCRIPT_VERSION = '2026-05-14-crm-v10-sms-v3';
 const NEWSLETTER_SHEET = 'Newsletter';
 const INVOICE_MANAGER_SHEET = 'Invoice_Manager';
 
@@ -1086,7 +1086,7 @@ function sendFast2SMS(phoneNumber, message) {
   const url = "https://www.fast2sms.com/dev/bulkV2";
   
   const payload = {
-    "route": "q", // Quick SMS route
+    "route": "v3", // Use cheaper v3 route instead of Quick SMS
     "message": cleanMessage,
     "language": "english",
     "numbers": phoneNumber.toString().replace(/\+/g, '').replace(/\s/g, '')
