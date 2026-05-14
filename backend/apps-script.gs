@@ -139,9 +139,7 @@ function initializeCRM() {
   // Add dropdown to A2 (Customer Names from Enquiries Col B)
   const rule = SpreadsheetApp.newDataValidation().requireValueInRange(enqSheet.getRange('B2:B1000')).build();
   invSheet.getRange('A2').setDataValidation(rule);
-    
     invSheet.setColumnWidth(1, 250);
-  }
 
   // 3. Create Newsletter sheet
   if (!ss.getSheetByName(NEWSLETTER_SHEET)) {
