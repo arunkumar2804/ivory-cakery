@@ -874,7 +874,13 @@ function manualSendInvoice() {
   }
 
   if (!email) {
-    SpreadsheetApp.getUi().alert('Customer email not found.');
+    const sampleId = data.length > 1 ? data[1][ORDER_ID_COLUMN_INDEX - 1] : "No data";
+    const msg = `Customer email not found.\n\n` +
+                `Searching for Order ID: "${searchId}"\n` +
+                `Total rows scanned: ${data.length - 1}\n` +
+                `Example ID in Row 2 Column ${ORDER_ID_COLUMN_INDEX}: "${sampleId}"\n\n` +
+                `Please ensure the Order ID in Invoice_Manager (B2) matches exactly with the Order ID in the Enquiries sheet.`;
+    SpreadsheetApp.getUi().alert(msg);
     return;
   }
 
