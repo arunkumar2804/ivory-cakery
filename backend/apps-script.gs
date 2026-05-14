@@ -21,11 +21,11 @@ const SPREADSHEET_ID = '1KMRIIQh1LGfGIcWMkNLioN_CC3nhU0edxIhLEyZjYfY';
 const SHEET_NAME = 'Enquiries';
 const STATUS_COLUMN_INDEX = 8;    // Column H
 const ORDER_ID_COLUMN_INDEX = 10; // Column J
-const CUSTOMER_SUPPORT_PHONE = '+91 86672 48598';
+const CUSTOMER_SUPPORT_PHONE = '+91 81237 84747';
 const BUSINESS_ADDRESS = 'SSK Residency 2nd cross, FCI Main Rd, Kadugodi, Bengaluru 560067';
 const INSTAGRAM_URL = 'https://www.instagram.com/ivory_cakery';
 const FACEBOOK_URL = 'https://www.facebook.com/share/18rBG3NEVS';
-const SCRIPT_VERSION = '2026-05-13-crm-invoice-v6';
+const SCRIPT_VERSION = '2026-05-14-crm-v7-premium';
 const NEWSLETTER_SHEET = 'Newsletter';
 const INVOICE_MANAGER_SHEET = 'Invoice_Manager';
 
@@ -497,18 +497,22 @@ function sendOwnerNotification(name, email, phone, occasion, cakeType, eventDate
     Logger.log(error);
   }
   
-  var tgMsg = 'New Cake Enquiry\n\n' +
-    name + ' wants to order a ' + cakeType + ' to be delivered on ' + formatEventDate(eventDate) + ' for their ' + occasion + '.\n\n' +
-    'Additional notes: "' + message + '"\n\n' +
-    'Phone: ' + phone + '\n' +
-    'Order ID: ' + orderId;
+  var tgMsg = '✨ <b>NEW CAKE ENQUIRY</b> ✨\n\n' +
+    '👤 <b>Customer:</b> ' + name + '\n' +
+    '🎂 <b>Occasion:</b> ' + occasion + '\n' +
+    '🍰 <b>Cake:</b> ' + cakeType + '\n' +
+    '📅 <b>Date:</b> ' + formatEventDate(eventDate) + '\n\n' +
+    '📝 <b>Message:</b>\n<i>"' + message + '"</i>\n\n' +
+    '📞 <b>Phone:</b> ' + phone + '\n' +
+    '🆔 <b>Order ID:</b> <code>' + orderId + '</code>\n\n' +
+    '🚀 <i>Sent via Ivory CRM Automation</i>';
                
   try {
     const response = UrlFetchApp.fetch('https://api.telegram.org/bot' + TELEGRAM_BOT_TOKEN + '/sendMessage', {
       method: 'post',
       contentType: 'application/json',
       muteHttpExceptions: true,
-      payload: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: tgMsg })
+      payload: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: tgMsg, parse_mode: 'HTML' })
     });
     const responseCode = response.getResponseCode();
     const responseBody = response.getContentText();
