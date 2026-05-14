@@ -653,19 +653,30 @@ function getEmailTheme(statusKey) {
 
 function getStatusMessage(name, cakeType, orderId, status, note) {
   const s = status.toLowerCase();
-  let msg = `Order ${orderId}: Your ${cakeType} is now ${status}. `;
+  let dynamicMsg = "";
   
-  if (note && note.trim() && note.length < 60) {
-    msg += note.trim() + " ";
+  // 1. Determine the status-specific friendly message
+  if (s.includes('new')) {
+    dynamicMsg = "We have received your enquiry and will be in touch shortly.";
+  } else if (s.includes('preparing')) {
+    dynamicMsg = "We are working hard to make it perfect for your celebration.";
+  } else if (s.includes('ready')) {
+    dynamicMsg = "Your creation is all set and waiting for you to collect it.";
+  } else if (s.includes('completed')) {
+    dynamicMsg = "We hope you enjoyed your bespoke creation!";
+  } else if (s.includes('cancelled')) {
+    dynamicMsg = "Please contact us if you have any questions or need assistance.";
   } else {
-    if (s.includes('new')) msg += "We've received your request! ";
-    else if (s.includes('preparing')) msg += "Crafting it now! ";
-    else if (s.includes('ready')) msg += "Ready for pickup! ";
-    else if (s.includes('completed')) msg += "Thank you! ";
-    else if (s.includes('cancelled')) msg += "Contact us for help. ";
+    dynamicMsg = "We are making steady progress on your order.";
   }
-  
-  return msg + "- Ivory Cakery";
+
+  // 2. Allow 'note' from spreadsheet to override if it exists and is short
+  if (note && note.trim() && note.length < 100) {
+    dynamicMsg = note.trim();
+  }
+
+  // 3. Construct the full professional message
+  return `Hi ${name}! This is Ivory Cakery with an update on your ${cakeType} order (${orderId}). The current status is: ${status}. ${dynamicMsg} Have a wonderful day!`;
 }
 
 function ensureSheetSchema(sheet) {
