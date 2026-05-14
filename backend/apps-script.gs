@@ -861,14 +861,27 @@ function manualSendInvoice() {
 
   const enqSheet = ss.getSheetByName(SHEET_NAME);
   const data = enqSheet.getDataRange().getValues();
+  const headers = data[0];
+  
+  // Find column indices dynamically
+  const orderIdCol = headers.indexOf('Order ID');
+  const emailCol = headers.indexOf('Email');
+  const cakeTypeCol = headers.indexOf('Cake Type');
+  
+  if (orderIdCol === -1 || emailCol === -1) {
+    SpreadsheetApp.getUi().alert('Critical columns (Order ID or Email) not found in Enquiries sheet headers.');
+    return;
+  }
+
   let email = '';
   let cakeType = '';
   const searchId = (orderId || "").toString().trim();
+  
   for (let i = 1; i < data.length; i++) {
-    const sheetId = (data[i][ORDER_ID_COLUMN_INDEX - 1] || "").toString().trim();
+    const sheetId = (data[i][orderIdCol] || "").toString().trim();
     if (sheetId === searchId) {
-      email = (data[i][2] || "").toString().trim();
-      cakeType = data[i][5];
+      email = (data[i][emailCol] || "").toString().trim();
+      cakeType = cakeTypeCol !== -1 ? data[i][cakeTypeCol] : "";
       break;
     }
   }
