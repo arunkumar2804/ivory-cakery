@@ -14,7 +14,10 @@ const Home: React.FC<HomeProps> = ({ onEnquiryClick }) => {
     { name: 'Bento Cakes', img: '/images/AVIF/bento_cake.avif', subtitle: 'Personal Delights', color: 'bg-peach-light' },
     { name: 'Custom Themes', img: '/images/AVIF/custom_theme_cake.avif', subtitle: 'Sculpted Artistry', color: 'bg-cream' },
     { name: 'Birthday Cakes', img: '/images/AVIF/birthday_cake.avif', subtitle: 'Sweet Memories', color: 'bg-coral-light' },
-    { name: 'Gourmet Bites', img: '/images/AVIF/gourmet_bites.avif', subtitle: 'Luxurious Flavors', color: 'bg-peach-light' },
+    { name: 'Anniversary Cakes', img: '/images/AVIF/anniversary_cake.avif', subtitle: 'Romantic Layering', color: 'bg-peach-light' },
+    { name: 'Gourmet Bites', img: '/images/AVIF/gourmet_bites.avif', subtitle: 'Luxurious Flavors', color: 'bg-cream' },
+    { name: 'Photo Cakes', img: '/images/AVIF/photo_cake.avif', subtitle: 'Edible Realism', color: 'bg-coral-light' },
+    { name: 'Engagement Cakes', img: '/images/AVIF/engagement_cake.avif', subtitle: 'Stunning Showpieces', color: 'bg-peach-light' },
   ];
 
   return (
@@ -78,7 +81,7 @@ const Home: React.FC<HomeProps> = ({ onEnquiryClick }) => {
             <div className="dots-accent-left"></div>
             
             <div className="story-massive-wrapper">
-              <img src="/images/AVIF/wedding_cake.avif" alt="Baker crafting a cake" className="story-massive-img" />
+              <img src="/images/AVIF/custom_theme_cake.avif" alt="Baker crafting a cake" className="story-massive-img" />
             </div>
             
             <div className="mini-badge-square"></div>
