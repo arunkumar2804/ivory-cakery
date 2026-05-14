@@ -1,17 +1,14 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { X, Send, CheckCircle, Loader2, Cake, Calendar, User, Mail, Phone, MessageSquare, PartyPopper } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { X, Send, CheckCircle, Loader2, Cake, Calendar, User, Mail, Phone, MessageSquare, PartyPopper, ArrowRight, ArrowLeft } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import './EnquiryModal.css';
 
 interface EnquiryModalProps {
   onClose: () => void;
 }
 
-// ── CONFIGURATION ──────────────────────────────────────────────
-// Replace this URL with your deployed Google Apps Script Web App URL
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxfQXst4OXm-9JuxtvxE4KlqbspaUTl7266xLEvmsExRG6sZOKPZlBgqBsl8VMfepZ6/exec';
-// ───────────────────────────────────────────────────────────────
 
-// Cake type dropdown options
 const CAKE_TYPES = [
   'Wedding Cake',
   'Birthday Cake',
@@ -24,7 +21,6 @@ const CAKE_TYPES = [
   'Gourmet Cupcakes',
 ];
 
-// Form data interface
 interface FormData {
   name: string;
   email: string;
@@ -36,7 +32,8 @@ interface FormData {
 }
 
 const EnquiryModal: React.FC<EnquiryModalProps> = ({ onClose }) => {
-  // Form state management
+  const [step, setStep] = useState(0);
+  const [direction, setDirection] = useState(1); // 1 for forward, -1 for back
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
@@ -50,9 +47,7 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ onClose }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState('');
-  const formRef = useRef<HTMLFormElement>(null);
 
-  // Prevent body scrolling when modal is open
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     return () => {
@@ -60,286 +55,297 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ onClose }) => {
     };
   }, []);
 
-  // Handle input changes
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
+  const handleChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
-    setError(''); // Clear error when user types
-  };
-
-  // Phone number validation (Indian format)
-  const isValidPhone = (phone: string) => {
-    return /^[6-9]\d{9}$/.test(phone.replace(/\s/g, ''));
-  };
-
-  // Handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
     setError('');
+  };
 
-    // ── Validation ──
-    if (!formData.name.trim()) {
-      setError('Please enter your name.');
+  const nextStep = () => {
+    // Basic validation before moving forward
+    if (step === 1 && !formData.name.trim()) {
+      setError("Please let us know your name first.");
       return;
     }
-    if (!isValidPhone(formData.phone)) {
-      setError('Please enter a valid 10-digit phone number.');
+    if (step === 2) {
+      if (!formData.email.trim()) {
+        setError("We need your email to send the invoice.");
+        return;
+      }
+      if (!/^[6-9]\d{9}$/.test(formData.phone.replace(/\s/g, ''))) {
+        setError("Please enter a valid 10-digit phone number.");
+        return;
+      }
+    }
+    if (step === 3 && !formData.occasion.trim()) {
+      setError("What occasion are we celebrating?");
       return;
     }
-    if (!formData.occasion.trim()) {
-      setError('Please tell us about the occasion.');
+    if (step === 4 && !formData.cakeType) {
+      setError("Please pick a cake style.");
       return;
     }
-    if (!formData.cakeType) {
-      setError('Please select a cake type.');
+    if (step === 5 && !formData.eventDate) {
+      setError("When is the celebration?");
       return;
     }
-    if (!formData.eventDate) {
-      setError('Please select the event date.');
-      return;
-    }
-    // ── NEW RELIABLE SUBMISSION METHOD ──
+
+    setDirection(1);
+    setStep(step + 1);
+  };
+
+  const prevStep = () => {
+    setDirection(-1);
+    setStep(step - 1);
+  };
+
+  const handleSubmit = async () => {
     setIsSubmitting(true);
+    setError('');
 
     try {
       const formDataBody = new URLSearchParams();
-      formDataBody.append('name', formData.name.trim());
-      formDataBody.append('email', formData.email.trim());
-      formDataBody.append('phone', formData.phone.trim());
-      formDataBody.append('occasion', formData.occasion.trim());
-      formDataBody.append('cakeType', formData.cakeType);
-      formDataBody.append('eventDate', formData.eventDate);
-      formDataBody.append('message', formData.message.trim());
+      Object.entries(formData).forEach(([key, value]) => {
+        formDataBody.append(key, value.trim());
+      });
 
-      // Use fetch with no-cors (Standard for Google Scripts)
       await fetch(APPS_SCRIPT_URL, {
         method: 'POST',
         mode: 'no-cors',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formDataBody
       });
 
-      // Show success state
       setIsSubmitted(true);
       setIsSubmitting(false);
-
     } catch (err) {
-      setError('Something went wrong. Please try again or contact us on WhatsApp.');
+      setError('Something went wrong. Please try again or reach us on WhatsApp.');
       setIsSubmitting(false);
     }
   };
 
-  // Get today's date in YYYY-MM-DD for min date attribute
+  const variants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? 100 : -100,
+      opacity: 0,
+      scale: 0.95
+    }),
+    center: {
+      zIndex: 1,
+      x: 0,
+      opacity: 1,
+      scale: 1
+    },
+    exit: (direction: number) => ({
+      zIndex: 0,
+      x: direction < 0 ? 100 : -100,
+      opacity: 0,
+      scale: 0.95
+    })
+  };
+
   const today = new Date().toISOString().split('T')[0];
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div
-        className="modal-container animate-fade-in"
+      <motion.div 
+        initial={{ opacity: 0, y: 20, scale: 0.9 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 20, scale: 0.9 }}
+        className="modal-container interactive-form-container" 
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close Button */}
-        <button className="modal-close" onClick={onClose} aria-label="Close enquiry form">
-          <X size={20} />
-        </button>
+        <button className="modal-close" onClick={onClose}><X size={20} /></button>
 
-        {/* ── SUCCESS STATE ── */}
-        {isSubmitted ? (
-          <div className="modal-success">
-            <div className="success-icon-wrapper">
-              <CheckCircle size={48} />
-            </div>
-            <h2>Thank You! 🎂</h2>
-            <p>
-              Your enquiry has been received. We'll get back to you within a few
-              hours to discuss your perfect <strong>{formData.cakeType}</strong>.
-            </p>
-            <button className="btn btn-primary mt-4" onClick={onClose}>
-              Close
-            </button>
-          </div>
-        ) : (
-          <>
-            {/* ── HEADER ── */}
-            <div className="modal-header">
-              <div className="modal-header-icon">
-                <Cake size={24} />
-              </div>
-              <h2>Tell Us About Your Dream Cake</h2>
-              <p>Fill in the details below and we'll craft something extraordinary for you.</p>
-            </div>
+        <div className="form-progress">
+          <div className="progress-bar" style={{ width: `${(step / 6) * 100}%` }}></div>
+        </div>
 
-            {/* ── FORM BODY ── */}
-            <div className="modal-body">
-              <form
-                ref={formRef}
-                className="enquiry-form"
-                onSubmit={handleSubmit}
-                noValidate
-              >
-                {/* Name */}
-                <div className="form-group">
-                  <label htmlFor="enquiry-name">
-                    <User size={16} />
-                    <span>Your Name <span className="required">*</span></span>
-                  </label>
-                  <input
-                    type="text"
-                    id="enquiry-name"
-                    name="name"
-                    placeholder="e.g. Arun Kumar"
-                    value={formData.name}
-                    onChange={handleChange}
-                    autoComplete="name"
-                    required
-                  />
+        <AnimatePresence initial={false} custom={direction} mode="wait">
+          {isSubmitted ? (
+            <motion.div 
+              key="success"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="modal-success conversational-step"
+            >
+              <div className="success-icon-wrapper"><CheckCircle size={64} /></div>
+              <h2>Perfect! 🎂</h2>
+              <p>Your enquiry for the <strong>{formData.cakeType}</strong> has been received. We'll contact you shortly!</p>
+              <button className="btn btn-primary mt-4" onClick={onClose}>Back to Website</button>
+            </motion.div>
+          ) : (
+            <motion.div
+              key={step}
+              custom={direction}
+              variants={variants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              className="conversational-step"
+            >
+              {/* Step 0: Intro */}
+              {step === 0 && (
+                <div className="step-content text-center">
+                  <div className="step-icon-big"><Cake size={48} /></div>
+                  <h1>Let's design your <br/><span className="text-highlight">Dream Cake</span></h1>
+                  <p>Answer a few quick questions so we can craft the perfect centerpiece for your celebration.</p>
+                  <button className="btn btn-primary btn-large mt-4" onClick={() => nextStep()}>
+                    Start Enquiry <ArrowRight size={20} />
+                  </button>
                 </div>
+              )}
 
-                {/* Email */}
-                <div className="form-group">
-                  <label htmlFor="enquiry-email">
-                    <Mail size={16} />
-                    <span>Email Address <span className="required">*</span></span>
-                  </label>
-                  <input
-                    type="email"
-                    id="enquiry-email"
-                    name="email"
-                    placeholder="e.g. arun@example.com"
-                    value={formData.email}
-                    onChange={handleChange}
-                    autoComplete="email"
-                    required
-                  />
-                </div>
-
-                {/* Phone */}
-                <div className="form-group">
-                  <label htmlFor="enquiry-phone">
-                    <Phone size={16} />
-                    <span>Phone Number <span className="required">*</span></span>
-                  </label>
-                  <input
-                    type="tel"
-                    id="enquiry-phone"
-                    name="phone"
-                    placeholder="e.g. 8123784747"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    autoComplete="tel"
-                    maxLength={10}
-                    required
-                  />
-                </div>
-
-                {/* Occasion */}
-                <div className="form-group">
-                  <label htmlFor="enquiry-occasion">
-                    <PartyPopper size={16} />
-                    <span>Occasion <span className="required">*</span></span>
-                  </label>
-                  <input
-                    type="text"
-                    id="enquiry-occasion"
-                    name="occasion"
-                    placeholder="e.g. Wedding Anniversary, Birthday"
-                    value={formData.occasion}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-
-                {/* Cake Type Dropdown */}
-                <div className="form-group">
-                  <label htmlFor="enquiry-cakeType">
-                    <Cake size={16} />
-                    <span>Cake Type <span className="required">*</span></span>
-                  </label>
-                  <select
-                    id="enquiry-cakeType"
-                    name="cakeType"
-                    value={formData.cakeType}
-                    onChange={handleChange}
-                    required
-                  >
-                    <option value="" disabled>
-                      Select a cake type...
-                    </option>
-                    {CAKE_TYPES.map((type) => (
-                      <option key={type} value={type}>
-                        {type}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Date of Event */}
-                <div className="form-group">
-                  <label htmlFor="enquiry-eventDate">
-                    <Calendar size={16} />
-                    <span>Date of Event <span className="required">*</span></span>
-                  </label>
-                  <input
-                    type="date"
-                    id="enquiry-eventDate"
-                    name="eventDate"
-                    value={formData.eventDate}
-                    onChange={handleChange}
-                    min={today}
-                    required
-                  />
-                </div>
-
-                {/* Message / Additional Details */}
-                <div className="form-group">
-                  <label htmlFor="enquiry-message">
-                    <MessageSquare size={16} />
-                    <span>Additional Details <span className="optional">(optional)</span></span>
-                  </label>
-                  <textarea
-                    id="enquiry-message"
-                    name="message"
-                    placeholder="Theme preferences, flavor choices, tier count, decorations..."
-                    value={formData.message}
-                    onChange={handleChange}
-                    rows={3}
-                  />
-                </div>
-
-                {/* Error Message */}
-                {error && (
-                  <div className="form-error">
-                    <span>⚠️ {error}</span>
+              {/* Step 1: Name */}
+              {step === 1 && (
+                <div className="step-content">
+                  <span className="step-label">Step 1 of 6</span>
+                  <h2>First, what should we <br/><span className="text-highlight">call you?</span></h2>
+                  <div className="input-container">
+                    <User className="input-icon" size={24} />
+                    <input 
+                      autoFocus
+                      type="text" 
+                      placeholder="Type your name..." 
+                      value={formData.name}
+                      onChange={(e) => handleChange('name', e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && nextStep()}
+                    />
                   </div>
-                )}
+                </div>
+              )}
 
-                {/* Submit Button */}
-                <button
-                  type="submit"
-                  className="btn btn-primary form-submit-btn"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 size={18} className="spin-icon" />
-                      Submitting...
-                    </>
+              {/* Step 2: Contact */}
+              {step === 2 && (
+                <div className="step-content">
+                  <span className="step-label">Step 2 of 6</span>
+                  <h2>How can we <br/><span className="text-highlight">reach you?</span></h2>
+                  <div className="input-container mb-3">
+                    <Mail className="input-icon" size={20} />
+                    <input 
+                      autoFocus
+                      type="email" 
+                      placeholder="Email Address" 
+                      value={formData.email}
+                      onChange={(e) => handleChange('email', e.target.value)}
+                    />
+                  </div>
+                  <div className="input-container">
+                    <Phone className="input-icon" size={20} />
+                    <input 
+                      type="tel" 
+                      placeholder="WhatsApp Number" 
+                      value={formData.phone}
+                      onChange={(e) => handleChange('phone', e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && nextStep()}
+                      maxLength={10}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Step 3: Occasion */}
+              {step === 3 && (
+                <div className="step-content">
+                  <span className="step-label">Step 3 of 6</span>
+                  <h2>What are we <br/><span className="text-highlight">celebrating?</span></h2>
+                  <div className="input-container">
+                    <PartyPopper className="input-icon" size={24} />
+                    <input 
+                      autoFocus
+                      type="text" 
+                      placeholder="e.g. 1st Birthday, Wedding..." 
+                      value={formData.occasion}
+                      onChange={(e) => handleChange('occasion', e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && nextStep()}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Step 4: Cake Type */}
+              {step === 4 && (
+                <div className="step-content">
+                  <span className="step-label">Step 4 of 6</span>
+                  <h2>Pick your <br/><span className="text-highlight">Cake Style</span></h2>
+                  <div className="options-grid">
+                    {CAKE_TYPES.map(type => (
+                      <button 
+                        key={type}
+                        className={`option-btn ${formData.cakeType === type ? 'selected' : ''}`}
+                        onClick={() => {
+                          handleChange('cakeType', type);
+                          setTimeout(nextStep, 300);
+                        }}
+                      >
+                        {type}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Step 5: Date */}
+              {step === 5 && (
+                <div className="step-content">
+                  <span className="step-label">Step 5 of 6</span>
+                  <h2>When is the <br/><span className="text-highlight">big day?</span></h2>
+                  <div className="input-container">
+                    <Calendar className="input-icon" size={24} />
+                    <input 
+                      autoFocus
+                      type="date" 
+                      min={today}
+                      value={formData.eventDate}
+                      onChange={(e) => handleChange('eventDate', e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && nextStep()}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Step 6: Notes */}
+              {step === 6 && (
+                <div className="step-content">
+                  <span className="step-label">Final Step</span>
+                  <h2>Any <span className="text-highlight">Special Vision</span> <br/>for the cake?</h2>
+                  <div className="input-container">
+                    <MessageSquare className="input-icon-top" size={24} />
+                    <textarea 
+                      autoFocus
+                      placeholder="Flavor choices, theme details, tier count..." 
+                      value={formData.message}
+                      onChange={(e) => handleChange('message', e.target.value)}
+                      rows={4}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Navigation Controls */}
+              {step > 0 && (
+                <div className="step-navigation">
+                  <button className="btn-nav back" onClick={prevStep}>
+                    <ArrowLeft size={20} /> Back
+                  </button>
+                  
+                  {step < 6 ? (
+                    <button className="btn btn-primary" onClick={nextStep}>
+                      Next <ArrowRight size={20} />
+                    </button>
                   ) : (
-                    <>
-                      <Send size={18} />
-                      Submit Enquiry
-                    </>
+                    <button className="btn btn-primary" onClick={handleSubmit} disabled={isSubmitting}>
+                      {isSubmitting ? <Loader2 className="spin-icon" size={20} /> : <><Send size={20} /> Submit</>}
+                    </button>
                   )}
-                </button>
-              </form>
-            </div>
-          </>
-        )}
-      </div>
+                </div>
+              )}
+
+              {error && <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="conversational-error">{error}</motion.div>}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
     </div>
   );
 };
