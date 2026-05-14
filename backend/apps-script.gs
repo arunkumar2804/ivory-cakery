@@ -863,9 +863,11 @@ function manualSendInvoice() {
   const data = enqSheet.getDataRange().getValues();
   let email = '';
   let cakeType = '';
+  const searchId = (orderId || "").toString().trim();
   for (let i = 1; i < data.length; i++) {
-    if (data[i][ORDER_ID_COLUMN_INDEX - 1] === orderId) {
-      email = data[i][2];
+    const sheetId = (data[i][ORDER_ID_COLUMN_INDEX - 1] || "").toString().trim();
+    if (sheetId === searchId) {
+      email = (data[i][2] || "").toString().trim();
       cakeType = data[i][5];
       break;
     }
