@@ -110,34 +110,35 @@ function initializeCRM() {
   let invSheet = ss.getSheetByName(INVOICE_MANAGER_SHEET);
   if (!invSheet) {
     invSheet = ss.insertSheet(INVOICE_MANAGER_SHEET);
-    // Header Section
-    invSheet.getRange('A1:G1').setValues([['Customer Name', 'Order ID', 'Discount (%)', 'Subtotal', 'Grand Total', 'Total Items', 'WhatsApp Link']])
-            .setFontWeight('bold').setBackground(COLORS.accent).setFontColor('#ffffff');
-    
-    // Summary Data row
-    invSheet.getRange('D2').setFormula('=SUM(D6:D30)');
-    invSheet.getRange('E2').setFormula('=D2 * (1 - C2/100)');
-    invSheet.getRange('F2').setFormula('=COUNTA(A6:A30)');
-    
-    // WhatsApp Formula for Invoice Manager (A2 is Name, B2 is Order ID, E2 is Grand Total)
-    const phoneLookup = `VLOOKUP(B2, {${SHEET_NAME}!J:J, ${SHEET_NAME}!D:D}, 2, 0)`;
-    const waInvMsg = `"Hi " & A2 & "! This is Ivory Cakery. Your invoice for order " & B2 & " is ready for Rs. " & E2 & ". Please let us know if you have any questions! Have a wonderful day!"`;
-    invSheet.getRange('G2').setFormula(`=HYPERLINK("https://wa.me/" & SUBSTITUTE(${phoneLookup}, "+", "") & "?text=" & ENCODEURL(${waInvMsg}), "Send WhatsApp Invoice")`);
-    
-    invSheet.getRange('C2').setValue(0); // Default 0% discount
-    
-    // Items Table Header
-    invSheet.getRange('A5:D5').setValues([['Item Description', 'Qty', 'Unit Price', 'Line Total']])
-            .setFontWeight('bold').setBackground(COLORS.surface).setBorder(true, true, true, true, true, true);
-    
-    // Item formulas
-    for (let i = 6; i <= 30; i++) {
-      invSheet.getRange('D' + i).setFormula(`=IF(AND(B${i}>0, C${i}>0), B${i}*C${i}, "")`);
-    }
-    
-    // Add dropdown to A2 (Customer Names from Enquiries Col B)
-    const rule = SpreadsheetApp.newDataValidation().requireValueInRange(enqSheet.getRange('B2:B1000')).build();
-    invSheet.getRange('A2').setDataValidation(rule);
+  }
+  
+  // Reset/Set Header Section
+  invSheet.getRange('A1:F1').setValues([['Customer Name', 'Order ID', 'Subtotal', 'WhatsApp Update', 'Discount (%)', 'Grand Total']])
+          .setFontWeight('bold').setBackground(COLORS.accent).setFontColor('#ffffff');
+  
+  // Summary Data row (Row 2)
+  invSheet.getRange('C2').setFormula('=SUM(D6:D30)'); // Subtotal (Sum of Line Totals)
+  invSheet.getRange('E2').setValue(0); // Default 0% discount
+  invSheet.getRange('F2').setFormula('=C2 * (1 - E2/100)'); // Grand Total
+  
+  // WhatsApp Formula for Invoice Manager (D2)
+  // A2 is Name, B2 is Order ID, C2 is Subtotal, E2 is Discount %, F2 is Grand Total
+  const phoneLookup = `VLOOKUP(B2, {${SHEET_NAME}!J:J, ${SHEET_NAME}!D:D}, 2, 0)`;
+  const waInvMsg = `"Hi " & A2 & "! This is Ivory Cakery. Your invoice for order " & B2 & " is ready for Rs. " & F2 & " (after " & E2 & "% discount). Have a wonderful day!"`;
+  invSheet.getRange('D2').setFormula(`=HYPERLINK("https://wa.me/" & SUBSTITUTE(${phoneLookup}, "+", "") & "?text=" & ENCODEURL(${waInvMsg}), "Send WhatsApp Invoice")`);
+  
+  // Items Table Header (Row 5)
+  invSheet.getRange('A5:D5').setValues([['Item Description', 'Qty', 'Unit Price', 'Line Total']])
+          .setFontWeight('bold').setBackground(COLORS.surface).setBorder(true, true, true, true, true, true);
+  
+  // Item formulas
+  for (let i = 6; i <= 30; i++) {
+    invSheet.getRange('D' + i).setFormula(`=IF(AND(B${i}>0, C${i}>0), B${i}*C${i}, "")`);
+  }
+  
+  // Add dropdown to A2 (Customer Names from Enquiries Col B)
+  const rule = SpreadsheetApp.newDataValidation().requireValueInRange(enqSheet.getRange('B2:B1000')).build();
+  invSheet.getRange('A2').setDataValidation(rule);
     
     invSheet.setColumnWidth(1, 250);
   }
@@ -952,13 +953,9 @@ function generateInvoicePdf(orderId) {
   const invSheet = ss.getSheetByName(INVOICE_MANAGER_SHEET);
   
   // Verify if the active builder is for the requested orderId
-  const builderOrderId = invSheet.getRange('A2').getValue();
+  const builderOrderId = invSheet.getRange('B2').getValue();
   if (builderOrderId !== orderId) {
     Logger.log('Requested PDF for ' + orderId + ' but builder is showing ' + builderOrderId);
-    // If not matching, we can't reliably build it from the manager sheet without switching it
-    // For automation (Preparing status), we'll assume the user has the right ID in the builder 
-    // OR we can fetch from Enquiries fallback if builder doesn't match? 
-    // Usually user would be working on the builder before setting status.
   }
 
   const enqSheet = ss.getSheetByName(SHEET_NAME);
@@ -972,7 +969,7 @@ function generateInvoicePdf(orderId) {
         email: enqData[i][2],
         phone: enqData[i][3],
         date: enqData[i][0],
-        discount: parseFloat(invSheet.getRange('C2').getValue()) || 0
+        discount: parseFloat(invSheet.getRange('E2').getValue()) || 0
       };
       break;
     }
