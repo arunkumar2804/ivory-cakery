@@ -712,9 +712,10 @@ function getStatusMessage(name, cakeType, orderId, status, note) {
     dynamicMsg = `Just an update on your ${cakeType} order (${orderId}). Current status: ${status}. Have a wonderful day!`;
   }
 
-  // 2. Allow 'note' from spreadsheet to override if it exists and is short
-  if (note && note.trim() && note.length < 150) {
-    dynamicMsg = note.trim();
+  // 2. Allow 'note' from spreadsheet to override if it exists, is not 'None', and is short
+  const cleanNote = (note || '').toString().trim();
+  if (cleanNote && cleanNote.toLowerCase() !== 'none' && cleanNote.length < 150) {
+    dynamicMsg = cleanNote;
   }
 
   // 3. Construct the full message
