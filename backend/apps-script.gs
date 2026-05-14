@@ -25,7 +25,7 @@ const CUSTOMER_SUPPORT_PHONE = '+91 81237 84747';
 const BUSINESS_ADDRESS = 'SSK Residency 2nd cross, FCI Main Rd, Kadugodi, Bengaluru 560067';
 const INSTAGRAM_URL = 'https://www.instagram.com/ivory_cakery';
 const FACEBOOK_URL = 'https://www.facebook.com/share/18rBG3NEVS';
-const SCRIPT_VERSION = '2026-05-14-crm-v8-sms';
+const SCRIPT_VERSION = '2026-05-14-crm-v9-detailed-sms';
 const NEWSLETTER_SHEET = 'Newsletter';
 const INVOICE_MANAGER_SHEET = 'Invoice_Manager';
 
@@ -687,28 +687,28 @@ function getStatusMessage(name, cakeType, orderId, status, note) {
   const s = status.toLowerCase();
   let dynamicMsg = "";
   
-  // 1. Determine the status-specific friendly message
+  // 1. Determine the status-specific detailed message
   if (s.includes('new')) {
-    dynamicMsg = "We have received your enquiry and will be in touch shortly.";
+    dynamicMsg = `We have successfully received your order for a ${cakeType} (${orderId}). Our master bakers are reviewing your request and will be in touch shortly to finalize the details. Thank you for choosing us!`;
   } else if (s.includes('preparing')) {
-    dynamicMsg = "We are working hard to make it perfect for your celebration.";
+    dynamicMsg = `Exciting news! Your ${cakeType} (${orderId}) is now in the Preparing stage. We are using the finest ingredients and intricate detailing to bring your vision to life. We'll update you once it's ready!`;
   } else if (s.includes('ready')) {
-    dynamicMsg = "Your creation is all set and waiting for you to collect it.";
+    dynamicMsg = `Your bespoke ${cakeType} (${orderId}) is now Ready to Pickup! You can collect it from our studio at your scheduled time. We can't wait for you to see your delicious creation!`;
   } else if (s.includes('completed')) {
-    dynamicMsg = "We hope you enjoyed your bespoke creation!";
+    dynamicMsg = `Your order (${orderId}) has been marked as Completed. It was a pleasure crafting this for you! We hope it adds a touch of magic to your celebration. Have a wonderful day!`;
   } else if (s.includes('cancelled')) {
-    dynamicMsg = "Please contact us if you have any questions or need assistance.";
+    dynamicMsg = `This is regarding your order (${orderId}). We are sorry to inform you that it has been Cancelled. If this was a mistake or you have questions, please reach out to us at ${CUSTOMER_SUPPORT_PHONE}.`;
   } else {
-    dynamicMsg = "We are making steady progress on your order.";
+    dynamicMsg = `Just an update on your ${cakeType} order (${orderId}). Current status: ${status}. Have a wonderful day!`;
   }
 
   // 2. Allow 'note' from spreadsheet to override if it exists and is short
-  if (note && note.trim() && note.length < 100) {
+  if (note && note.trim() && note.length < 150) {
     dynamicMsg = note.trim();
   }
 
-  // 3. Construct the full professional message
-  return `Hi ${name}! This is Ivory Cakery with an update on your ${cakeType} order (${orderId}). The current status is: ${status}. ${dynamicMsg} Have a wonderful day!`;
+  // 3. Construct the full message
+  return `Hi ${name}! This is Ivory Cakery. ${dynamicMsg}`;
 }
 
 function ensureSheetSchema(sheet) {
