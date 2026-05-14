@@ -164,50 +164,82 @@ function doPost(e) {
     const eventDate = params.eventDate || '';
     const message   = params.message   || 'None';
     
+    Logger.log('Processing enquiry for: ' + name);
+
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = ss.getSheetByName(SHEET_NAME);
+    if (!sheet) throw new Error('Sheet "' + SHEET_NAME + '" not found in spreadsheet.');
+    
     const orderId = generateOrderId();
     
-    // 1. PROVEN WRITING METHOD (appendRow)
-    sheet.appendRow([
-      new Date(), 
-      name, 
-      email, 
-      " " + phone, 
-      occasion, 
-      cakeType, 
-      eventDate, 
-      'New', 
-      message, 
-      orderId, 
-      ""
-    ]);
-    SpreadsheetApp.flush();
-    result.saved = true;
+    // 1. SAVE TO SHEET
+    try {
+      sheet.appendRow([
+        new Date(), 
+        name, 
+        email, 
+        " " + phone, 
+        occasion, 
+        cakeType, 
+        eventDate, 
+        'New', 
+        message, 
+        orderId, 
+        ""
+      ]);
+      SpreadsheetApp.flush();
+      result.saved = true;
+      Logger.log('Saved to sheet: ' + orderId);
+    } catch (err) {
+      Logger.log('Sheet saving failed: ' + err.toString());
+      result.errors.push('Sheet Error: ' + err.toString());
+    }
 
-    // 2. OWNER EMAIL (Safest Notification)
-    GmailApp.sendEmail(OWNER_EMAIL, "NEW ENQUIRY: " + name, "Order ID: " + orderId + "\nDetails: " + cakeType);
-    result.ownerEmailSent = true;
+    // 2. OWNER NOTIFICATIONS (Email & Telegram)
+    try {
+      sendOwnerNotification(name, email, phone, occasion, cakeType, eventDate, message, orderId);
+      result.ownerEmailSent = true;
+      result.telegramSent = true;
+      Logger.log('Owner notifications triggered.');
+    } catch (err) {
+      Logger.log('Owner notification failed: ' + err.toString());
+      result.errors.push('Owner Notif Error: ' + err.toString());
+    }
 
     // 3. CUSTOMER EMAIL
-    sendOrderStatusEmail(email, name, {
-      statusKey: 'ordered',
-      orderId: orderId,
-      cakeType: cakeType,
-      bodyText: `Your enquiry for the <strong>${cakeType}</strong> has been successfully received. We will be in touch shortly!`
-    });
-    result.customerEmailSent = true;
+    if (email && email.includes('@')) {
+      try {
+        sendOrderStatusEmail(email, name, {
+          statusKey: 'ordered',
+          orderId: orderId,
+          cakeType: cakeType,
+          bodyText: `Your enquiry for the <strong>${cakeType}</strong> has been successfully received. We will be in touch shortly!`
+        });
+        result.customerEmailSent = true;
+        Logger.log('Customer email sent.');
+      } catch (err) {
+        Logger.log('Customer email failed: ' + err.toString());
+        result.errors.push('Customer Email Error: ' + err.toString());
+      }
+    }
     
     // 4. SMS Notification
     if (phone && phone !== 'No Phone' && FAST2SMS_API_KEY !== 'YOUR_API_KEY_HERE') {
-      const note = params.message || '';
-      const smsMsg = getStatusMessage(name, cakeType, orderId, 'New', note);
-      sendFast2SMS(phone, smsMsg);
-      result.smsSent = true;
+      try {
+        const note = message || '';
+        const smsMsg = getStatusMessage(name, cakeType, orderId, 'New', note);
+        sendFast2SMS(phone, smsMsg);
+        result.smsSent = true;
+        Logger.log('SMS sent.');
+      } catch (err) {
+        Logger.log('SMS failed: ' + err.toString());
+        result.errors.push('SMS Error: ' + err.toString());
+      }
     }
     
-    return createResponse(200, 'success', 'Enquiry processed successfully.', result);
+    return createResponse(200, 'success', 'Enquiry processed.', result);
   } catch (error) {
+    Logger.log('Critical doPost failure: ' + error.toString());
     result.errors.push(error.toString());
     return createResponse(500, 'error', error.toString(), result);
   }
@@ -1070,4 +1102,10 @@ function sendFast2SMS(phoneNumber, message) {
   } catch (e) {
     Logger.log('Fast2SMS error: ' + e.toString());
   }
+}
+function generateOrderId() {
+  const date = Utilities.formatDate(new Date(), 'Asia/Kolkata', 'yyMMdd');
+  const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+  const char = String.fromCharCode(65 + Math.floor(Math.random() * 26)); // Random A-Z
+  return `IC-${date}-${random}${char}`;
 }
