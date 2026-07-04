@@ -249,32 +249,38 @@
 
 .flavor-grid {
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 0.8rem;
+  gap: 1.2rem;
+  padding-top: 0.5rem;
 }
 
 .flavor-btn {
-  padding: 0.8rem 1rem;
+  padding: 1rem;
   font-size: 0.95rem;
   border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
+  position: relative;
+  display: block;
+  text-align: left;
 }
 
 .flavor-name {
-  flex: 1;
+  display: block;
 }
 
 .flavor-badge {
+  position: absolute;
+  top: -10px;
+  right: 12px;
   display: inline-block;
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   padding: 0.25rem 0.5rem;
-  border-radius: 10px;
+  border-radius: 8px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border: 1px solid #fff;
+  z-index: 2;
 }
 
 .badge-recommended {
