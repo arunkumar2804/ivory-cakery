@@ -21,12 +21,23 @@ const CAKE_TYPES = [
   'Gourmet Cupcakes',
 ];
 
+const FLAVOR_CATEGORIES = {
+  "Classical Delights": ["Classic Vanilla", "Rich Chocolate", "Butterscotch Bliss", "Pineapple Paradise", "Strawberry Delight", "Black Forest", "White Forest", "Vanilla Choco Chip"],
+  "Chocolate Indulgence": ["Belgian Chocolate Truffle", "Belgian Dark Chocolate Truffle", "Belgian Milk Chocolate Truffle", "Triple Chocolate", "Chocolate Fudge", "Chocolate Hazelnut", "Chocolate Almond", "Chocolate Oreo", "Chocolate Kitkat", "Chocolate Crunch", "Chocolate Caramel", "Chocolate Mousse", "Choco Chips", "Snickers Chocolate"],
+  "Premium Signature": ["Nutella Chocolate", "Ferrero Rocher", "Red velvet", "Tiramisu", "Irish Coffee", "Salted Caramel", "Lotus Biscoff"],
+  "Fruit Collection": ["Fresh Fruit", "Mixed Berries", "Blueberry", "Mango(Seasonal)", "Litchi", "Blackcurrent", "Orange", "Cherry"],
+  "Indian Dessert Infused": ["Gulab Jamun", "Rabdi Malai", "Kesar Pista", "Badam Milk", "Gulkand Rose"],
+  "Ivory Cakery Signature Flavours": ["Belgian Chocolate Truffle", "Lotus Biscoff", "Nutella Hazelnut", "Red Velvet Cream Cheese", "Blueberry Cheesecake", "Tiramisu", "Salted Caramel Crunch", "Oreo Cookies & Cream", "Kesar Pista Royal", "Ferrero Rocher", "Rasmalai", "Death By Chocolate"],
+  "Kid's Favourite": ["Bubblegum", "Cotton Candy", "Rainbow Vanilla", "Gems Chocolate", "Nutella Oreo", "Kinder Chocolate"]
+};
+
 interface FormData {
   name: string;
   email: string;
   phone: string;
   occasion: string;
   cakeType: string;
+  flavor: string;
   eventDate: string;
   message: string;
 }
@@ -40,6 +51,7 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ onClose }) => {
     phone: '',
     occasion: '',
     cakeType: '',
+    flavor: '',
     eventDate: '',
     message: '',
   });
@@ -84,7 +96,11 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ onClose }) => {
       setError("Please pick a cake style.");
       return;
     }
-    if (step === 5 && !formData.eventDate) {
+    if (step === 5 && !formData.flavor) {
+      setError("Please select a flavor.");
+      return;
+    }
+    if (step === 6 && !formData.eventDate) {
       setError("When is the celebration?");
       return;
     }
@@ -157,7 +173,7 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ onClose }) => {
         <button className="modal-close" onClick={onClose}><X size={20} /></button>
 
         <div className="form-progress">
-          <div className="progress-bar" style={{ width: `${(step / 6) * 100}%` }}></div>
+          <div className="progress-bar" style={{ width: `${(step / 7) * 100}%` }}></div>
         </div>
 
         <AnimatePresence initial={false} custom={direction} mode="wait">
@@ -199,7 +215,7 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ onClose }) => {
               {/* Step 1: Name */}
               {step === 1 && (
                 <div className="step-content">
-                  <span className="step-label">Step 1 of 6</span>
+                  <span className="step-label">Step 1 of 7</span>
                   <h2>First, what should we <br/><span className="text-highlight">call you?</span></h2>
                   <div className="input-container">
                     <User className="input-icon" size={24} />
@@ -218,7 +234,7 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ onClose }) => {
               {/* Step 2: Contact */}
               {step === 2 && (
                 <div className="step-content">
-                  <span className="step-label">Step 2 of 6</span>
+                  <span className="step-label">Step 2 of 7</span>
                   <h2>How can we <br/><span className="text-highlight">reach you?</span></h2>
                   <div className="input-container mb-3">
                     <Mail className="input-icon" size={20} />
@@ -247,7 +263,7 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ onClose }) => {
               {/* Step 3: Occasion */}
               {step === 3 && (
                 <div className="step-content">
-                  <span className="step-label">Step 3 of 6</span>
+                  <span className="step-label">Step 3 of 7</span>
                   <h2>What are we <br/><span className="text-highlight">celebrating?</span></h2>
                   <div className="input-container">
                     <PartyPopper className="input-icon" size={24} />
@@ -266,7 +282,7 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ onClose }) => {
               {/* Step 4: Cake Type */}
               {step === 4 && (
                 <div className="step-content">
-                  <span className="step-label">Step 4 of 6</span>
+                  <span className="step-label">Step 4 of 7</span>
                   <h2>Pick your <br/><span className="text-highlight">Cake Style</span></h2>
                   <div className="options-grid">
                     {CAKE_TYPES.map(type => (
@@ -285,10 +301,39 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ onClose }) => {
                 </div>
               )}
 
-              {/* Step 5: Date */}
+              {/* Step 5: Flavor */}
               {step === 5 && (
+                <div className="step-content flavor-step">
+                  <span className="step-label">Step 5 of 7</span>
+                  <h2>Choose your <br/><span className="text-highlight">Flavor</span></h2>
+                  <div className="flavor-scroll-area">
+                    {Object.entries(FLAVOR_CATEGORIES).map(([category, flavors]) => (
+                      <div key={category} className="flavor-category-group">
+                        <h3 className="flavor-category-title">{category}</h3>
+                        <div className="options-grid flavor-grid">
+                          {flavors.map(flavor => (
+                            <button 
+                              key={`${category}-${flavor}`}
+                              className={`option-btn flavor-btn ${formData.flavor === flavor ? 'selected' : ''}`}
+                              onClick={() => {
+                                handleChange('flavor', flavor);
+                                setTimeout(nextStep, 300);
+                              }}
+                            >
+                              {flavor}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Step 6: Date */}
+              {step === 6 && (
                 <div className="step-content">
-                  <span className="step-label">Step 5 of 6</span>
+                  <span className="step-label">Step 6 of 7</span>
                   <h2>When is the <br/><span className="text-highlight">big day?</span></h2>
                   <div className="input-container">
                     <Calendar className="input-icon" size={24} />
@@ -304,8 +349,8 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ onClose }) => {
                 </div>
               )}
 
-              {/* Step 6: Notes */}
-              {step === 6 && (
+              {/* Step 7: Notes */}
+              {step === 7 && (
                 <div className="step-content">
                   <span className="step-label">Final Step</span>
                   <h2>Any <span className="text-highlight">Special Vision</span> <br/>for the cake?</h2>
@@ -313,7 +358,7 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ onClose }) => {
                     <MessageSquare className="input-icon-top" size={24} />
                     <textarea 
                       autoFocus
-                      placeholder="Flavor choices, theme details, tier count..." 
+                      placeholder="Theme details, tier count, custom instructions..." 
                       value={formData.message}
                       onChange={(e) => handleChange('message', e.target.value)}
                       rows={4}
@@ -329,7 +374,7 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ onClose }) => {
                     <ArrowLeft size={20} /> Back
                   </button>
                   
-                  {step < 6 ? (
+                  {step < 7 ? (
                     <button className="btn btn-primary" onClick={nextStep}>
                       Next <ArrowRight size={20} />
                     </button>

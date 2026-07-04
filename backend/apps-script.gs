@@ -79,9 +79,12 @@ function initializeCRM() {
   // 1. Ensure Enquiries sheet has Discount & Total columns
   let enqSheet = ss.getSheetByName(SHEET_NAME);
   if (enqSheet) {
-    const headers = enqSheet.getRange(1, 1, 1, 11).getValues()[0];
+    const headers = enqSheet.getRange(1, 1, 1, 12).getValues()[0];
     if (headers[10] !== 'WhatsApp') {
       enqSheet.getRange(1, 11).setValue('WhatsApp').setFontWeight('bold').setBackground(COLORS.bg);
+    }
+    if (headers[11] !== 'Flavor') {
+      enqSheet.getRange(1, 12).setValue('Flavor').setFontWeight('bold').setBackground(COLORS.bg);
     }
     
     // Backfill WhatsApp formulas and Status Dropdowns for existing rows
@@ -113,19 +116,15 @@ function initializeCRM() {
   }
   
   // Reset/Set Header Section
-  invSheet.getRange('A1:F1').setValues([['Customer Name', 'Order ID', 'Subtotal', 'WhatsApp Update', 'Discount (%)', 'Grand Total']])
+  invSheet.getRange('A1:E1').setValues([['Customer Name', 'Order ID', 'Subtotal', 'Discount (%)', 'Grand Total']])
           .setFontWeight('bold').setBackground(COLORS.accent).setFontColor('#ffffff');
   
   // Summary Data row (Row 2)
   invSheet.getRange('C2').setFormula('=SUM(D6:D30)'); // Subtotal (Sum of Line Totals)
-  invSheet.getRange('E2').setValue(0); // Default 0% discount
-  invSheet.getRange('F2').setFormula('=C2 * (1 - E2/100)'); // Grand Total
+  invSheet.getRange('D2').setValue(0); // Default 0% discount
+  invSheet.getRange('E2').setFormula('=C2 * (1 - D2/100)'); // Grand Total
   
-  // WhatsApp Formula for Invoice Manager (D2)
-  // A2 is Name, B2 is Order ID, C2 is Subtotal, E2 is Discount %, F2 is Grand Total
-  const phoneLookup = `VLOOKUP(B2, {${SHEET_NAME}!J:J, ${SHEET_NAME}!D:D}, 2, 0)`;
-  const waInvMsg = `"Hi " & A2 & "! This is Ivory Cakery. Your invoice for order " & B2 & " is ready for Rs. " & F2 & " (after " & E2 & "% discount). Have a wonderful day!"`;
-  invSheet.getRange('D2').setFormula(`=HYPERLINK("https://wa.me/" & SUBSTITUTE(${phoneLookup}, "+", "") & "?text=" & ENCODEURL(${waInvMsg}), "Send WhatsApp Invoice")`);
+  // (WhatsApp button removed from Invoice Manager as requested)
   
   // Items Table Header (Row 5)
   invSheet.getRange('A5:D5').setValues([['Item Description', 'Qty', 'Unit Price', 'Line Total']])
@@ -165,6 +164,7 @@ function doPost(e) {
     const phone     = params.phone     || 'No Phone';
     const occasion  = params.occasion  || 'Celebration';
     const cakeType  = params.cakeType  || 'Bespoke Cake';
+    const flavor    = params.flavor    || 'Not Selected';
     const eventDate = params.eventDate || '';
     const message   = params.message   || 'None';
     
@@ -189,7 +189,8 @@ function doPost(e) {
         'New', 
         message, 
         orderId, 
-        ""
+        "",
+        flavor
       ]);
       const lastRow = sheet.getLastRow();
       const statusRule = SpreadsheetApp.newDataValidation()
@@ -206,7 +207,7 @@ function doPost(e) {
 
     // 2. OWNER NOTIFICATIONS (Email & Telegram)
     try {
-      sendOwnerNotification(name, email, phone, occasion, cakeType, eventDate, message, orderId);
+      sendOwnerNotification(name, email, phone, occasion, cakeType, flavor, eventDate, message, orderId);
       result.ownerEmailSent = true;
       result.telegramSent = true;
       Logger.log('Owner notifications triggered.');
@@ -360,16 +361,16 @@ function handleInvoiceManagerEdit(e) {
     invSheet.getRange('B2').setValue(orderId);
     invSheet.getRange('A6').setValue(cakeType);
     invSheet.getRange('B6').setValue(1); // Default Qty
-    invSheet.getRange('C2').setValue(discount);
+    invSheet.getRange('D2').setValue(discount); // Discount in Col D
     
     // 3. Restore formulas to ensure subtotal and line totals work
-    invSheet.getRange('D2').setFormula('=SUM(D6:D30)');
-    invSheet.getRange('E2').setFormula('=D2 * (1 - C2/100)');
-    invSheet.getRange('F2').setFormula('=COUNTA(A6:A30)');
+    invSheet.getRange('C2').setFormula('=SUM(D6:D30)'); // Subtotal in Col C
+    invSheet.getRange('E2').setFormula('=C2 * (1 - D2/100)'); // Grand Total in Col E
     
-    const phoneLookup = `VLOOKUP(B2, {${SHEET_NAME}!J:J, ${SHEET_NAME}!D:D}, 2, 0)`;
-    const waInvMsg = `"Hi " & A2 & "! This is Ivory Cakery. Your invoice for order " & B2 & " is ready for Rs. " & E2 & ". Please let us know if you have any questions! Have a wonderful day!"`;
-    invSheet.getRange('G2').setFormula(`=HYPERLINK("https://wa.me/" & SUBSTITUTE(${phoneLookup}, "+", "") & "?text=" & ENCODEURL(${waInvMsg}), "Send WhatsApp Invoice")`);
+    // 4. Ensure A2 has the name (usually selected by user, but autofill if we can)
+    // (A2 is already handled or selected manually)
+    
+    // (COUNTA and WhatsApp Invoice removed from here as requested)
     
     for (let i = 6; i <= 30; i++) {
       invSheet.getRange('D' + i).setFormula(`=IF(AND(B${i}>0, C${i}>0), B${i}*C${i}, "")`);
@@ -520,14 +521,14 @@ function sendOrderStatusEmail(to, name, config) {
 
 
 /** 4. TELEGRAM & OWNER NOTIFICATIONS */
-function sendOwnerNotification(name, email, phone, occasion, cakeType, eventDate, message, orderId) {
+function sendOwnerNotification(name, email, phone, occasion, cakeType, flavor, eventDate, message, orderId) {
   const result = { ownerEmailSent: false, telegramSent: false, errors: [] };
 
   // Owner Email
   const subject = `New Enquiry: ${name} (${orderId})`;
   const html = `<div style="font-family:sans-serif; padding:30px; background:${COLORS.bg};">
     <h2 style="color:${COLORS.text}; font-weight:normal;">New Order Enquiry</h2>
-    <p><strong>ID:</strong> ${orderId}<br><strong>Customer:</strong> ${name}<br><strong>Cake:</strong> ${cakeType}</p>
+    <p><strong>ID:</strong> ${orderId}<br><strong>Customer:</strong> ${name}<br><strong>Cake:</strong> ${cakeType}<br><strong>Flavor:</strong> ${flavor}</p>
     <a href="${SpreadsheetApp.getActiveSpreadsheet().getUrl()}" style="display:inline-block; border:1px solid ${COLORS.accent}; color:${COLORS.accent}; padding:12px 25px; text-decoration:none; font-size:13px; letter-spacing:1px; margin-top:20px;">VIEW ORDERS SHEET</a>
   </div>`;
   try {
@@ -544,6 +545,7 @@ function sendOwnerNotification(name, email, phone, occasion, cakeType, eventDate
     '👤 <b>Customer:</b> ' + name + '\n' +
     '🎂 <b>Occasion:</b> ' + occasion + '\n' +
     '🍰 <b>Cake:</b> ' + cakeType + '\n' +
+    '🍫 <b>Flavor:</b> ' + flavor + '\n' +
     '📅 <b>Date:</b> ' + formatEventDate(eventDate) + '\n\n' +
     '📝 <b>Message:</b>\n<i>"' + message + '"</i>\n\n' +
     '📞 <b>Phone:</b> ' + phone + '\n' +
@@ -711,11 +713,8 @@ function getStatusMessage(name, cakeType, orderId, status, note) {
     dynamicMsg = `Just an update on your ${cakeType} order (${orderId}). Current status: ${status}. Have a wonderful day!`;
   }
 
-  // 2. Allow 'note' from spreadsheet to override if it exists, is not 'None', and is short
-  const cleanNote = (note || '').toString().trim();
-  if (cleanNote && cleanNote.toLowerCase() !== 'none' && cleanNote.length < 150) {
-    dynamicMsg = cleanNote;
-  }
+  // 2. We no longer override the professional brand voice with the technical 'note' column.
+  // This ensures the customer always receives the elegant template you approved.
 
   // 3. Construct the full message
   return `Hi ${name}! This is Ivory Cakery. ${dynamicMsg}`;

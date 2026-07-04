@@ -202,6 +202,62 @@
   box-shadow: 0 10px 20px rgba(235, 165, 81, 0.3);
 }
 
+/* Flavor Step Specifics */
+.flavor-step {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+.flavor-scroll-area {
+  overflow-y: auto;
+  max-height: 45vh;
+  padding-right: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Custom Scrollbar for Flavor Area */
+.flavor-scroll-area::-webkit-scrollbar {
+  width: 6px;
+}
+.flavor-scroll-area::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.02);
+  border-radius: 10px;
+}
+.flavor-scroll-area::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.1);
+  border-radius: 10px;
+}
+.flavor-scroll-area::-webkit-scrollbar-thumb:hover {
+  background: rgba(0,0,0,0.2);
+}
+
+.flavor-category-group {
+  margin-bottom: 2rem;
+}
+
+.flavor-category-title {
+  font-size: 1.1rem;
+  color: var(--color-primary);
+  font-weight: 800;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid rgba(0,0,0,0.05);
+  padding-bottom: 0.5rem;
+}
+
+.flavor-grid {
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.8rem;
+}
+
+.flavor-btn {
+  padding: 0.8rem 1rem;
+  font-size: 0.95rem;
+  border-radius: 12px;
+}
+
 /* Navigation */
 .step-navigation {
   margin-top: 3rem;
