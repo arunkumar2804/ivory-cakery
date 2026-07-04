@@ -31,6 +31,19 @@ const FLAVOR_CATEGORIES = {
   "Kid's Favourite": ["Bubblegum", "Cotton Candy", "Rainbow Vanilla", "Gems Chocolate", "Nutella Oreo", "Kinder Chocolate"]
 };
 
+const FLAVOR_BADGES: Record<string, { text: string, className: string }> = {
+  "Belgian Chocolate Truffle": { text: "Mostly Ordered", className: "badge-ordered" },
+  "Red velvet": { text: "Chef's Choice", className: "badge-chef" },
+  "Lotus Biscoff": { text: "Recommended", className: "badge-recommended" },
+  "Mango(Seasonal)": { text: "New", className: "badge-new" },
+  "Tiramisu": { text: "Recommended", className: "badge-recommended" },
+  "Death By Chocolate": { text: "Chef's Choice", className: "badge-chef" },
+  "Cotton Candy": { text: "New", className: "badge-new" },
+  "Kesar Pista Royal": { text: "Mostly Ordered", className: "badge-ordered" },
+  "Nutella Oreo": { text: "Recommended", className: "badge-recommended" },
+  "Gulab Jamun": { text: "Chef's Choice", className: "badge-chef" }
+};
+
 interface FormData {
   name: string;
   email: string;
@@ -320,7 +333,12 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({ onClose }) => {
                                 setTimeout(nextStep, 300);
                               }}
                             >
-                              {flavor}
+                              <span className="flavor-name">{flavor}</span>
+                              {FLAVOR_BADGES[flavor] && (
+                                <span className={`flavor-badge ${FLAVOR_BADGES[flavor].className}`}>
+                                  {FLAVOR_BADGES[flavor].text}
+                                </span>
+                              )}
                             </button>
                           ))}
                         </div>
