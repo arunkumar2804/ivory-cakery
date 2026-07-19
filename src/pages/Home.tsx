@@ -57,7 +57,7 @@ const Home: React.FC<HomeProps> = ({ onEnquiryClick }) => {
             
             {/* Massive Hero Image Showcase */}
             <div className="hero-massive-wrapper">
-              <img src="/images/AVIF/wedding_cake.avif" alt="Delicious Bespoke Cake" className="hero-massive-cake" />
+              <img src="/images/AVIF/wedding_cake.avif" alt="Premium bespoke wedding cake design by Ivory Cakery" className="hero-massive-cake" />
             </div>
 
             <div className="floating-sticker anim-float">
@@ -81,7 +81,7 @@ const Home: React.FC<HomeProps> = ({ onEnquiryClick }) => {
             <div className="dots-accent-left"></div>
             
             <div className="story-massive-wrapper">
-              <img src="/images/AVIF/custom_theme_cake.avif" alt="Baker crafting a cake" className="story-massive-img" />
+              <img src="/images/AVIF/custom_theme_cake.avif" alt="Intricately designed custom theme cake by Ivory Cakery" className="story-massive-img" />
             </div>
             
             <div className="mini-badge-square"></div>
@@ -196,7 +196,7 @@ const Home: React.FC<HomeProps> = ({ onEnquiryClick }) => {
             
             {/* Massive Display Visual */}
             <div className="phil-massive-wrapper">
-              <img src="/images/AVIF/kids_theme_cake.avif" alt="Delicious Featured Cake" className="phil-massive-cake" />
+              <img src="/images/AVIF/kids_theme_cake.avif" alt="Beautiful kids theme cake showcasing Ivory Cakery's design philosophy" className="phil-massive-cake" />
             </div>
 
             <div className="floating-geo geo-circle-solid-small"></div>
