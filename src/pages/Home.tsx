@@ -57,7 +57,7 @@ const Home: React.FC<HomeProps> = ({ onEnquiryClick }) => {
             
             {/* Massive Hero Image Showcase */}
             <div className="hero-massive-wrapper">
-              <img src="/images/AVIF/wedding_cake.avif" alt="Premium bespoke wedding cake design by Ivory Cakery" className="hero-massive-cake" />
+              <img src="/images/AVIF/wedding_cake.avif" alt="Ivory Cakery featured centerpiece cake" className="hero-massive-cake" />
             </div>
 
             <div className="floating-sticker anim-float">
@@ -81,7 +81,7 @@ const Home: React.FC<HomeProps> = ({ onEnquiryClick }) => {
             <div className="dots-accent-left"></div>
             
             <div className="story-massive-wrapper">
-              <img src="/images/AVIF/custom_theme_cake.avif" alt="Intricately designed custom theme cake by Ivory Cakery" className="story-massive-img" />
+              <img src="/images/AVIF/custom_theme_cake.avif" alt="Ivory Cakery bespoke artisan showcase" className="story-massive-img" />
             </div>
             
             <div className="mini-badge-square"></div>
@@ -125,7 +125,7 @@ const Home: React.FC<HomeProps> = ({ onEnquiryClick }) => {
             {categories.map((cat, index) => (
               <div className={`showcase-card ${cat.color}`} key={index} onClick={onEnquiryClick}>
                 <div className="showcase-img-box">
-                  <img src={cat.img} alt={cat.name} className="showcase-main-character" />
+                  <img src={cat.img} alt={`Ivory Cakery ${cat.name} collection display`} className="showcase-main-character" />
                   <div className="overlay-tint"></div>
                 </div>
                 
@@ -196,7 +196,7 @@ const Home: React.FC<HomeProps> = ({ onEnquiryClick }) => {
             
             {/* Massive Display Visual */}
             <div className="phil-massive-wrapper">
-              <img src="/images/AVIF/kids_theme_cake.avif" alt="Beautiful kids theme cake showcasing Ivory Cakery's design philosophy" className="phil-massive-cake" />
+              <img src="/images/AVIF/kids_theme_cake.avif" alt="Ivory Cakery design philosophy and personalized styling" className="phil-massive-cake" />
             </div>
 
             <div className="floating-geo geo-circle-solid-small"></div>

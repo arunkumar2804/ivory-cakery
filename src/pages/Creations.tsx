@@ -44,7 +44,7 @@ const Creations: React.FC<CreationsProps> = ({ onEnquiryClick }) => {
             {categories.map((cat, index) => (
               <div className={`showcase-card ${cat.color}`} key={index} onClick={onEnquiryClick}>
                 <div className="showcase-img-box">
-                  <img src={cat.img} alt={cat.name} className="showcase-main-character" />
+                  <img src={cat.img} alt={`Ivory Cakery ${cat.name} collection display`} className="showcase-main-character" />
                   <div className="overlay-tint"></div>
                 </div>
                 
