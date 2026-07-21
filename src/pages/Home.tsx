@@ -57,7 +57,13 @@ const Home: React.FC<HomeProps> = ({ onEnquiryClick }) => {
             
             {/* Massive Hero Image Showcase */}
             <div className="hero-massive-wrapper">
-              <img src="/images/AVIF/wedding_cake.avif" alt="Ivory Cakery featured centerpiece cake" className="hero-massive-cake" />
+              <img 
+                src="/images/AVIF/wedding_cake.avif" 
+                alt="Ivory Cakery featured centerpiece cake" 
+                className="hero-massive-cake" 
+                fetchPriority="high"
+                decoding="async"
+              />
             </div>
 
             <div className="floating-sticker anim-float">
@@ -81,7 +87,13 @@ const Home: React.FC<HomeProps> = ({ onEnquiryClick }) => {
             <div className="dots-accent-left"></div>
             
             <div className="story-massive-wrapper">
-              <img src="/images/AVIF/custom_theme_cake.avif" alt="Ivory Cakery bespoke artisan showcase" className="story-massive-img" />
+              <img 
+                src="/images/AVIF/custom_theme_cake.avif" 
+                alt="Ivory Cakery bespoke artisan showcase" 
+                className="story-massive-img" 
+                loading="lazy"
+                decoding="async"
+              />
             </div>
             
             <div className="mini-badge-square"></div>
@@ -125,7 +137,13 @@ const Home: React.FC<HomeProps> = ({ onEnquiryClick }) => {
             {categories.map((cat, index) => (
               <div className={`showcase-card ${cat.color}`} key={index} onClick={onEnquiryClick}>
                 <div className="showcase-img-box">
-                  <img src={cat.img} alt={`Ivory Cakery ${cat.name} collection display`} className="showcase-main-character" />
+                  <img 
+                    src={cat.img} 
+                    alt={`Ivory Cakery ${cat.name} collection display`} 
+                    className="showcase-main-character" 
+                    loading="lazy"
+                    decoding="async"
+                  />
                   <div className="overlay-tint"></div>
                 </div>
                 
@@ -196,7 +214,13 @@ const Home: React.FC<HomeProps> = ({ onEnquiryClick }) => {
             
             {/* Massive Display Visual */}
             <div className="phil-massive-wrapper">
-              <img src="/images/AVIF/kids_theme_cake.avif" alt="Ivory Cakery design philosophy and personalized styling" className="phil-massive-cake" />
+              <img 
+                src="/images/AVIF/kids_theme_cake.avif" 
+                alt="Ivory Cakery design philosophy and personalized styling" 
+                className="phil-massive-cake" 
+                loading="lazy"
+                decoding="async"
+              />
             </div>
 
             <div className="floating-geo geo-circle-solid-small"></div>

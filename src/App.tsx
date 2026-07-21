@@ -1,15 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { FaWhatsapp } from 'react-icons/fa';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import EnquiryModal from './components/EnquiryModal';
 import Home from './pages/Home';
-import Creations from './pages/Creations';
-import About from './pages/About';
-import HowItWorks from './pages/HowItWorks';
-import Contact from './pages/Contact';
 import ScrollToTop from './components/ScrollToTop';
+
+const EnquiryModal = lazy(() => import('./components/EnquiryModal'));
+const Creations = lazy(() => import('./pages/Creations'));
+const About = lazy(() => import('./pages/About'));
+const HowItWorks = lazy(() => import('./pages/HowItWorks'));
+const Contact = lazy(() => import('./pages/Contact'));
 
 function App() {
   const [isEnquiryOpen, setIsEnquiryOpen] = useState(false);
@@ -34,16 +35,22 @@ function App() {
       <ScrollToTop />
       <Navbar onEnquiryClick={toggleEnquiry} />
       <main>
-        <Routes>
-          <Route path="/" element={<Home onEnquiryClick={toggleEnquiry} />} />
-          <Route path="/creations" element={<Creations onEnquiryClick={toggleEnquiry} />} />
-          <Route path="/about" element={<About onEnquiryClick={toggleEnquiry} />} />
-          <Route path="/how-it-works" element={<HowItWorks onEnquiryClick={toggleEnquiry} />} />
-          <Route path="/contact" element={<Contact onEnquiryClick={toggleEnquiry} />} />
-        </Routes>
+        <Suspense fallback={null}>
+          <Routes>
+            <Route path="/" element={<Home onEnquiryClick={toggleEnquiry} />} />
+            <Route path="/creations" element={<Creations onEnquiryClick={toggleEnquiry} />} />
+            <Route path="/about" element={<About onEnquiryClick={toggleEnquiry} />} />
+            <Route path="/how-it-works" element={<HowItWorks onEnquiryClick={toggleEnquiry} />} />
+            <Route path="/contact" element={<Contact onEnquiryClick={toggleEnquiry} />} />
+          </Routes>
+        </Suspense>
       </main>
       <Footer />
-      {isEnquiryOpen && <EnquiryModal onClose={toggleEnquiry} />}
+      {isEnquiryOpen && (
+        <Suspense fallback={null}>
+          <EnquiryModal onClose={toggleEnquiry} />
+        </Suspense>
+      )}
 
       {/* Floating Global WhatsApp Button */}
       <a 

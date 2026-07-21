@@ -9,7 +9,7 @@ const Footer: React.FC = () => {
     <footer className="footer">
       <div className="container footer-container">
         <div className="footer-brand">
-          <img src="/images/ivory_logo.png" alt="Ivory Cakery Logo" className="footer-logo-img" />
+          <img src="/images/ivory_logo.png" alt="Ivory Cakery Logo" className="footer-logo-img" loading="lazy" decoding="async" />
           <p className="footer-tagline">Crafted to be as beautiful as it is memorable.</p>
           <div className="social-links">
             <a href="https://www.instagram.com/ivory_cakery" target="_blank" rel="noreferrer" aria-label="Instagram">

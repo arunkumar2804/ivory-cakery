@@ -29,7 +29,7 @@ const Navbar: React.FC<NavbarProps> = ({ onEnquiryClick }) => {
       <div className="container nav-vibrant-container">
         
         <Link to="/" className="nav-brand-logo">
-          <img src="/images/ivory_logo.png" alt="Ivory Cakery Logo" className="brand-logo-img" />
+          <img src="/images/ivory_logo.png" alt="Ivory Cakery Logo" className="brand-logo-img" decoding="async" />
           <span className="brand-text">Ivory <span className="text-highlight">Cakery.</span></span>
         </Link>
 
