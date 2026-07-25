@@ -44,7 +44,7 @@ const Footer: React.FC = () => {
             </li>
             <li>
               <MapPin size={18} />
-              <span>SSK Residency 2nd cross, FCI Main Rd,<br/>Kadugodi, Bengaluru 560067</span>
+              <span>Shop No.02, Ground Floor, KSVK School Rd, opp. to Green Ville Apartment,<br/>Hagadur, Vinayaka Layout, Whitefield, Bengaluru, Karnataka 560066</span>
             </li>
           </ul>
         </div>

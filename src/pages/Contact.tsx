@@ -61,7 +61,7 @@ const Contact: React.FC<ContactProps> = ({ onEnquiryClick }) => {
                   </div>
                   <div className="contact-details">
                     <h3>Atelier Location</h3>
-                    <p>SSK Residency 2nd cross, FCI Main Rd, Patalamma Layout,<br/>Vinayaka Layout, Kadugodi, Bengaluru 560067</p>
+                    <p>Shop No.02, Ground Floor, KSVK School Rd, opp. to Green Ville Apartment,<br/>Hagadur, Vinayaka Layout, Whitefield, Bengaluru, Karnataka 560066</p>
                   </div>
                 </div>
 
