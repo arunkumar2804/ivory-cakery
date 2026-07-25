@@ -930,7 +930,7 @@ function manualSendInvoice() {
 
 function generateActiveInvoice() {
   const invSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(INVOICE_MANAGER_SHEET);
-  const orderId = invSheet.getRange('A2').getValue();
+  const orderId = invSheet.getRange('B2').getValue();
   
   if (!orderId) {
     SpreadsheetApp.getUi().alert('No Order ID selected in ' + INVOICE_MANAGER_SHEET);
@@ -966,7 +966,7 @@ function generateInvoicePdf(orderId) {
         email: enqData[i][2],
         phone: enqData[i][3],
         date: enqData[i][0],
-        discount: parseFloat(invSheet.getRange('E2').getValue()) || 0
+        discount: parseFloat(invSheet.getRange('D2').getValue()) || 0
       };
       break;
     }
