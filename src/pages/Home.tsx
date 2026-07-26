@@ -58,7 +58,7 @@ const Home: React.FC<HomeProps> = ({ onEnquiryClick }) => {
             {/* Massive Hero Image Showcase */}
             <div className="hero-massive-wrapper">
               <img 
-                src="/images/AVIF/wedding_cake.avif" 
+                src="/images/hero-image.avif" 
                 alt="Ivory Cakery featured centerpiece cake" 
                 className="hero-massive-cake" 
                 fetchPriority="high"

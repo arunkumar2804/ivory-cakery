@@ -152,21 +152,29 @@
   transform-origin: center;
 }
 
-/* Massive Hero Showcase Image */
+/* Massive Hero Image Showcase */
 .hero-massive-wrapper {
   position: relative;
   width: 100%;
   max-width: 550px; /* Made incredibly prominent */
   z-index: 1;
-  filter: drop-shadow(0 25px 40px rgba(0,0,0,0.18));
+  /* Dual drop-shadow for a highly realistic, grounded but floating look on transparent PNGs/AVIFs */
+  filter: drop-shadow(0 35px 35px rgba(0,0,0,0.25)) drop-shadow(0 15px 12px rgba(0,0,0,0.15));
+}
+
+@keyframes floatCake {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-18px) rotate(1.5deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
 }
 
 .hero-massive-cake {
   width: 100%;
   height: auto;
   object-fit: contain;
-  border-radius: var(--radius-lg);
   display: block;
+  transform-origin: bottom center;
+  animation: floatCake 9s ease-in-out infinite;
 }
 
 .floating-sticker {
