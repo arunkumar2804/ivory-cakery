@@ -30,7 +30,6 @@ const Navbar: React.FC<NavbarProps> = ({ onEnquiryClick }) => {
         
         <Link to="/" className="nav-brand-logo">
           <img src="/images/logos/logo.svg" alt="Ivory Cakery Logo" className="brand-logo-img" decoding="async" />
-          <span className="brand-text">Ivory <span className="text-highlight">Cakery.</span></span>
         </Link>
 
         <nav className={`nav-vibrant-links ${isMobileMenuOpen ? 'open' : ''}`}>
