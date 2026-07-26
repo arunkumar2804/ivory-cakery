@@ -25,8 +25,6 @@ const Home: React.FC<HomeProps> = ({ onEnquiryClick }) => {
       
       {/* 1. HERO SECTION (Massive Cake Focus) */}
       <section className="hero-vibrant">
-        <div className="floating-geo geo-circle-empty"></div>
-        <div className="floating-geo geo-square-rot"></div>
         <div className="floating-geo geo-dots-grid"></div>
 
         <div className="container hero-grid">
@@ -66,9 +64,29 @@ const Home: React.FC<HomeProps> = ({ onEnquiryClick }) => {
               />
             </div>
 
-            <div className="floating-sticker anim-float">
+            <div className="floating-sticker chip-1 anim-float">
               <Sparkles size={16} color="#F05A5B" />
               <span>Freshly Baked</span>
+            </div>
+            
+            <div className="floating-sticker chip-2 anim-float-delay-1">
+              <Heart size={14} color="#F1C87F" />
+              <span>Eggless Options</span>
+            </div>
+
+            <div className="floating-sticker chip-3 anim-float-delay-2">
+              <Award size={18} color="#EBA551" />
+              <span>Premium Quality</span>
+            </div>
+
+            <div className="floating-sticker chip-4 anim-float-delay-3">
+              <Sparkles size={15} color="#583B1D" />
+              <span>Bespoke Designs</span>
+            </div>
+
+            <div className="floating-sticker chip-5 anim-float-delay-4">
+              <Heart size={12} color="#F05A5B" />
+              <span>100% Custom</span>
             </div>
           </div>
 
