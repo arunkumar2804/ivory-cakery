@@ -42,6 +42,7 @@ function App() {
             <Route path="/about" element={<About onEnquiryClick={toggleEnquiry} />} />
             <Route path="/how-it-works" element={<HowItWorks onEnquiryClick={toggleEnquiry} />} />
             <Route path="/contact" element={<Contact onEnquiryClick={toggleEnquiry} />} />
+            <Route path="*" element={<Home onEnquiryClick={toggleEnquiry} />} />
           </Routes>
         </Suspense>
       </main>
